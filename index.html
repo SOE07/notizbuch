@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Mein Notizbuch</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Inter:wght@400;500;600&display=swap');
@@ -10,592 +10,454 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
-    --paper: #fffef5;
-    --paper-dark: #f5f0e0;
-    --line: #c8d4e0;
-    --margin: #e8a0a0;
+    --paper: #faf8f0;
+    --paper-edge: #e8e2d0;
+    --line-color: #d0d8e4;
+    --margin-color: #d8a0a0;
     --ink: #2c3e50;
-    --ink-light: #7f8c8d;
+    --ink-light: #8899aa;
     --accent: #e74c3c;
-    --accent-hover: #c0392b;
-    --tag-bg: #eaf0f7;
     --tag-active: #3498db;
-    --shadow: rgba(0,0,0,0.1);
-    --sidebar-bg: #f7f4eb;
-    --sidebar-width: 280px;
+    --tag-bg: #e8f0fa;
+    --shadow: rgba(0,0,0,0.12);
+    --line-h: 36px;
   }
 
   body {
     font-family: 'Inter', sans-serif;
-    background: #e8e0d0;
+    background: #c8c0b0;
+    background-image:
+      radial-gradient(ellipse at 30% 20%, #d5cfc0 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 80%, #c0b8a8 0%, transparent 60%);
     color: var(--ink);
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
   }
 
   /* --- Sidebar --- */
   .sidebar {
-    width: var(--sidebar-width);
-    min-width: var(--sidebar-width);
-    background: var(--sidebar-bg);
-    border-right: 2px solid var(--paper-dark);
+    width: 250px;
+    min-width: 250px;
+    background: #f0ebe0;
+    border-right: 1px solid #d8d0c0;
     display: flex;
     flex-direction: column;
     height: 100vh;
-    position: sticky;
-    top: 0;
     overflow-y: auto;
   }
 
   .sidebar-header {
-    padding: 24px 20px 16px;
-    border-bottom: 1px solid var(--paper-dark);
+    padding: 18px 14px 12px;
+    border-bottom: 1px solid #d8d0c0;
   }
 
   .sidebar-header h1 {
     font-family: 'Caveat', cursive;
-    font-size: 28px;
-    color: var(--ink);
-    margin-bottom: 12px;
+    font-size: 22px;
+    margin-bottom: 8px;
   }
 
-  .search-box {
-    position: relative;
-    margin-bottom: 0;
-  }
+  .search-box { position: relative; }
 
   .search-box input {
     width: 100%;
-    padding: 8px 12px 8px 34px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--paper);
-    font-size: 14px;
+    padding: 6px 10px 6px 28px;
+    border: 1px solid #c8c0b0;
+    border-radius: 6px;
+    background: white;
+    font-size: 12px;
     color: var(--ink);
     outline: none;
-    transition: border-color 0.2s;
   }
 
-  .search-box input:focus {
-    border-color: var(--tag-active);
-  }
+  .search-box input:focus { border-color: var(--tag-active); }
 
   .search-box::before {
     content: '\1F50D';
     position: absolute;
-    left: 10px;
+    left: 8px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 14px;
-    opacity: 0.5;
+    font-size: 11px;
+    opacity: 0.4;
   }
 
-  /* Tags section */
   .tags-section {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--paper-dark);
+    padding: 10px 14px;
+    border-bottom: 1px solid #d8d0c0;
   }
 
   .tags-section h3 {
-    font-size: 11px;
+    font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--ink-light);
-    margin-bottom: 10px;
-  }
-
-  .tag-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .tag-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 10px;
-    border-radius: 12px;
-    background: var(--tag-bg);
-    color: var(--ink);
-    font-size: 13px;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: all 0.2s;
-    user-select: none;
-  }
-
-  .tag-chip:hover {
-    background: #d5e3f0;
-  }
-
-  .tag-chip.active {
-    background: var(--tag-active);
-    color: white;
-    border-color: var(--tag-active);
-  }
-
-  .tag-chip .tag-count {
-    margin-left: 5px;
-    font-size: 11px;
-    opacity: 0.7;
-  }
-
-  .tag-chip-all {
-    font-weight: 500;
-  }
-
-  /* Notes list */
-  .notes-list-section {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 0;
-  }
-
-  .note-item {
-    padding: 12px 20px;
-    cursor: pointer;
-    border-left: 3px solid transparent;
-    transition: all 0.15s;
-  }
-
-  .note-item:hover {
-    background: var(--paper-dark);
-  }
-
-  .note-item.active {
-    background: var(--paper);
-    border-left-color: var(--tag-active);
-  }
-
-  .note-item-title {
-    font-weight: 500;
-    font-size: 14px;
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .note-item-preview {
-    font-size: 12px;
-    color: var(--ink-light);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     margin-bottom: 6px;
   }
 
-  .note-item-meta {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
+  .tag-filters { display: flex; flex-wrap: wrap; gap: 4px; }
 
-  .note-item-date {
+  .tag-chip {
+    padding: 2px 7px;
+    border-radius: 8px;
+    background: var(--tag-bg);
+    color: var(--ink);
     font-size: 11px;
-    color: var(--ink-light);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
   }
 
-  .note-item-tag {
-    font-size: 10px;
-    padding: 1px 6px;
+  .tag-chip:hover { background: #d0e0f0; }
+  .tag-chip.active { background: var(--tag-active); color: white; }
+  .tag-chip .tc { margin-left: 3px; font-size: 9px; opacity: 0.6; }
+
+  .sidebar-actions {
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-bottom: 1px solid #d8d0c0;
+  }
+
+  .sb-btn {
+    padding: 7px;
+    border: 1px solid #c8c0b0;
     border-radius: 6px;
+    background: white;
+    color: var(--ink-light);
+    font-size: 11px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+
+  .sb-btn:hover { background: var(--tag-bg); color: var(--ink); }
+  .sb-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .sb-btn.primary:hover { background: #c0392b; }
+
+  .page-list { flex: 1; overflow-y: auto; padding: 2px 0; }
+
+  .pg-item {
+    padding: 8px 14px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.1s;
+  }
+
+  .pg-item:hover { background: #e8e2d5; }
+  .pg-item.active { background: var(--paper); border-left-color: var(--tag-active); }
+
+  .pg-item-preview {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+
+  .pg-item-meta { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+  .pg-item-date { font-size: 9px; color: var(--ink-light); }
+
+  .pg-item-tag {
+    font-size: 8px;
+    padding: 1px 4px;
+    border-radius: 4px;
     background: var(--tag-bg);
     color: var(--ink-light);
   }
 
-  /* New note button */
-  .new-note-btn {
-    margin: 12px 20px;
-    padding: 10px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+  .pg-count {
+    padding: 5px 14px;
+    font-size: 9px;
+    color: var(--ink-light);
+    text-align: center;
+    border-top: 1px solid #d8d0c0;
   }
 
-  .new-note-btn:hover {
-    background: var(--accent-hover);
-  }
-
-  /* --- Main editor --- */
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
-  .editor-empty {
+  /* --- Notebook area --- */
+  .notebook-area {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--ink-light);
-    font-family: 'Caveat', cursive;
-    font-size: 24px;
-  }
-
-  .editor-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Editor toolbar */
-  .editor-toolbar {
-    display: flex;
-    align-items: center;
-    padding: 12px 32px;
-    background: var(--paper);
-    border-bottom: 1px solid var(--paper-dark);
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .editor-toolbar .tag-input-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .editor-toolbar label {
-    font-size: 12px;
-    color: var(--ink-light);
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-    font-style: italic;
-  }
-
-  .delete-note-btn {
-    padding: 6px 12px;
-    background: none;
-    border: 1px solid var(--margin);
-    color: var(--margin);
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .delete-note-btn:hover {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-  }
-
-  /* Notebook paper */
-  .notebook-page {
-    flex: 1;
-    background: var(--paper);
     position: relative;
-    overflow-y: auto;
+    padding: 16px 56px;
+    overflow: hidden;
   }
 
-  .notebook-page::before {
+  /* Page arrows */
+  .page-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.6);
+    color: var(--ink-light);
+    font-size: 22px;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .page-arrow:hover { background: white; color: var(--ink); box-shadow: 0 2px 8px var(--shadow); }
+  .page-arrow:disabled { opacity: 0.15; cursor: default; pointer-events: none; }
+  .page-arrow-left { left: 8px; }
+  .page-arrow-right { right: 8px; }
+
+  /* The paper */
+  .paper {
+    width: 100%;
+    max-width: 560px;
+    background: var(--paper);
+    border-radius: 3px;
+    box-shadow:
+      2px 4px 16px rgba(0,0,0,0.18),
+      -1px 0 0 var(--paper-edge),
+      1px 0 0 var(--paper-edge);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+
+  /* Margin line */
+  .paper::before {
     content: '';
     position: absolute;
-    left: 72px;
+    left: 100px;
     top: 0;
     bottom: 0;
     width: 2px;
-    background: var(--margin);
-    opacity: 0.5;
-    z-index: 1;
+    background: var(--margin-color);
+    opacity: 0.35;
+    z-index: 2;
     pointer-events: none;
   }
 
-  .title-input {
-    width: 100%;
-    padding: 24px 32px 8px 88px;
-    border: none;
-    background: transparent;
+  /* Spiral holes decoration */
+  .paper::after {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 30px;
+    bottom: 30px;
+    width: 12px;
+    background-image: radial-gradient(circle 5px at 6px center, #999 4px, transparent 4.5px);
+    background-size: 12px 40px;
+    background-repeat: repeat-y;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0.3;
+  }
+
+  .paper-header {
+    padding: 10px 16px 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 36px;
+  }
+
+  .paper-page-info {
     font-family: 'Caveat', cursive;
-    font-size: 32px;
-    font-weight: 600;
-    color: var(--ink);
-    outline: none;
-    background-image: repeating-linear-gradient(
-      transparent,
-      transparent 39px,
-      var(--line) 39px,
-      var(--line) 40px
-    );
-    background-position-y: 16px;
-    line-height: 40px;
+    font-size: 15px;
+    color: var(--ink-light);
   }
 
-  .title-input::placeholder {
-    color: #ccc;
+  .paper-del-btn {
+    font-size: 10px;
+    color: var(--ink-light);
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: all 0.15s;
   }
 
-  /* Lines editor */
-  .lines-editor {
-    padding: 8px 16px 32px 88px;
-    min-height: calc(100vh - 200px);
+  .paper-del-btn:hover { opacity: 1; color: var(--accent); border-color: var(--accent); }
+
+  /* Lines area */
+  .lines-area {
+    flex: 1;
+    padding: 0 12px 0 6px;
+    position: relative;
     background-image: repeating-linear-gradient(
       transparent,
-      transparent 39px,
-      var(--line) 39px,
-      var(--line) 40px
+      transparent calc(var(--line-h) - 1px),
+      var(--line-color) calc(var(--line-h) - 1px),
+      var(--line-color) var(--line-h)
     );
-    background-position-y: 0;
   }
 
   .line-row {
     display: flex;
     align-items: center;
-    height: 40px;
-    position: relative;
-    gap: 4px;
+    height: var(--line-h);
+    gap: 2px;
   }
+
+  .line-date {
+    width: 46px;
+    border: none;
+    background: transparent;
+    font-family: 'Caveat', cursive;
+    font-size: 13px;
+    color: var(--ink-light);
+    text-align: center;
+    outline: none;
+    height: var(--line-h);
+    line-height: var(--line-h);
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .line-date::placeholder { color: #d0ccc0; }
+
+  .line-tag-btn {
+    width: 48px;
+    padding: 1px 3px;
+    font-size: 9px;
+    border-radius: 5px;
+    border: 1px dashed #ccc;
+    background: transparent;
+    color: var(--ink-light);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    transition: all 0.12s;
+    flex-shrink: 0;
+    font-family: 'Inter', sans-serif;
+    height: 20px;
+    line-height: 16px;
+  }
+
+  .line-tag-btn:hover { border-color: var(--tag-active); color: var(--tag-active); background: var(--tag-bg); }
+  .line-tag-btn.has-tag { background: var(--tag-active); border-color: var(--tag-active); color: white; font-weight: 500; }
+  .line-tag-btn.has-tag:hover { background: #2980b9; }
 
   .line-text {
     flex: 1;
     border: none;
     background: transparent;
     font-family: 'Caveat', cursive;
-    font-size: 20px;
+    font-size: 18px;
     color: var(--ink);
     outline: none;
-    line-height: 40px;
-    height: 40px;
-    padding: 0;
+    height: var(--line-h);
+    line-height: var(--line-h);
+    padding: 0 4px;
     min-width: 0;
   }
 
-  .line-text::placeholder {
-    color: #ccc;
-  }
+  .line-text::placeholder { color: #d5d0c5; }
 
-  .line-tag-btn {
-    padding: 2px 8px;
-    font-size: 11px;
-    border-radius: 8px;
-    border: 1px dashed var(--line);
-    background: transparent;
-    color: var(--ink-light);
-    cursor: pointer;
-    white-space: nowrap;
-    min-width: 24px;
+  .paper-footer {
+    padding: 6px 16px;
     text-align: center;
-    transition: all 0.15s;
-    flex-shrink: 0;
-    font-family: 'Inter', sans-serif;
-    line-height: 1.4;
-  }
-
-  .line-tag-btn:hover {
-    border-color: var(--tag-active);
-    color: var(--tag-active);
-    background: var(--tag-bg);
-  }
-
-  .line-tag-btn.has-tag {
-    background: var(--tag-active);
-    border: 1px solid var(--tag-active);
-    color: white;
-    font-weight: 500;
-  }
-
-  .line-tag-btn.has-tag:hover {
-    background: #2980b9;
-    color: white;
+    font-size: 10px;
+    color: var(--ink-light);
+    min-height: 28px;
   }
 
   /* Tag dropdown */
   .tag-dropdown {
     position: fixed;
-    z-index: 200;
+    z-index: 300;
     background: white;
-    border: 1px solid var(--line);
-    border-radius: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    min-width: 200px;
-    max-width: 260px;
+    min-width: 180px;
+    max-width: 230px;
     display: none;
     overflow: hidden;
   }
 
-  .tag-dropdown.open {
-    display: block;
-  }
+  .tag-dropdown.open { display: block; }
 
-  .tag-dropdown-search {
+  .tag-dd-search {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 10px;
     border: none;
-    border-bottom: 1px solid var(--paper-dark);
-    font-size: 13px;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
     outline: none;
-    color: var(--ink);
-    background: var(--paper);
+    background: #fafafa;
   }
 
-  .tag-dropdown-search::placeholder {
-    color: #bbb;
-  }
+  .tag-dd-search::placeholder { color: #bbb; }
 
-  .tag-dropdown-list {
-    max-height: 200px;
-    overflow-y: auto;
-    padding: 4px 0;
-  }
+  .tag-dd-list { max-height: 170px; overflow-y: auto; padding: 2px 0; }
 
-  .tag-suggestion {
-    padding: 8px 12px;
-    font-size: 13px;
+  .tag-dd-item {
+    padding: 6px 10px;
+    font-size: 11px;
     cursor: pointer;
-    transition: background 0.1s;
+    transition: background 0.08s;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
   }
 
-  .tag-suggestion:hover {
-    background: var(--tag-bg);
-  }
+  .tag-dd-item:hover, .tag-dd-item.hl { background: var(--tag-bg); }
+  .tag-dd-item.create { color: var(--tag-active); font-weight: 500; }
+  .tag-dd-item.remove { color: var(--accent); border-top: 1px solid #eee; }
+  .tag-dd-empty { padding: 10px; font-size: 10px; color: #aaa; text-align: center; }
 
-  .tag-suggestion.active {
-    background: var(--tag-bg);
-  }
-
-  .tag-suggestion.create {
-    color: var(--tag-active);
-    font-weight: 500;
-    border-bottom: 1px solid var(--paper-dark);
-  }
-
-  .tag-suggestion.remove {
-    color: var(--accent);
-    border-top: 1px solid var(--paper-dark);
-  }
-
-  .tag-suggestion-empty {
-    padding: 12px;
-    font-size: 12px;
-    color: var(--ink-light);
-    text-align: center;
-  }
-
-  .tag-suggestion-dot {
-    width: 8px;
-    height: 8px;
+  .tag-dd-dot {
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: var(--tag-active);
     flex-shrink: 0;
   }
 
-  /* Note count */
-  .note-count {
-    padding: 8px 20px;
-    font-size: 11px;
-    color: var(--ink-light);
-    border-top: 1px solid var(--paper-dark);
-    text-align: center;
+  /* Page turn animation */
+  .lines-area.turn-left { animation: turnL 0.22s ease; }
+  .lines-area.turn-right { animation: turnR 0.22s ease; }
+
+  @keyframes turnL {
+    0% { opacity: 0; transform: translateX(-20px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes turnR {
+    0% { opacity: 0; transform: translateX(20px); }
+    100% { opacity: 1; transform: translateX(0); }
   }
 
   /* Mobile */
-  .mobile-toggle {
+  .menu-btn {
     display: none;
     position: fixed;
-    bottom: 20px;
-    left: 20px;
+    top: 10px;
+    left: 10px;
     z-index: 100;
-    width: 48px;
-    height: 48px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    background: var(--accent);
-    color: white;
+    background: rgba(255,255,255,0.85);
     border: none;
-    font-size: 24px;
+    font-size: 18px;
     cursor: pointer;
-    box-shadow: 0 2px 8px var(--shadow);
+    box-shadow: 0 1px 6px var(--shadow);
   }
 
-  @media (max-width: 768px) {
-    .sidebar {
-      position: fixed;
-      left: -100%;
-      top: 0;
-      z-index: 99;
-      width: 85%;
-      transition: left 0.3s;
-      box-shadow: 4px 0 12px var(--shadow);
-    }
-
-    .sidebar.open {
-      left: 0;
-    }
-
-    .mobile-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .editor-toolbar {
-      padding: 12px 16px;
-    }
-
-    .title-input {
-      padding-left: 40px;
-    }
-
-    .lines-editor {
-      padding-left: 40px;
-    }
-
-    .notebook-page::before {
-      left: 28px;
-    }
-  }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--ink-light); }
-
-  /* File actions */
-  .file-actions {
-    display: flex;
-    gap: 8px;
-    padding: 0 20px 12px;
-  }
-
-  .file-btn {
-    flex: 1;
-    padding: 7px 0;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--paper);
-    color: var(--ink-light);
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-
-  .file-btn:hover {
-    background: var(--tag-bg);
-    color: var(--ink);
-    border-color: var(--tag-active);
-  }
-
-  /* Overlay for mobile */
   .overlay {
     display: none;
     position: fixed;
@@ -604,18 +466,61 @@
     z-index: 98;
   }
 
-  .overlay.visible {
-    display: block;
+  .overlay.visible { display: block; }
+
+  @media (max-width: 768px) {
+    :root { --line-h: 32px; }
+
+    .sidebar {
+      position: fixed;
+      left: -100%;
+      top: 0;
+      z-index: 99;
+      width: 80%;
+      max-width: 280px;
+      transition: left 0.3s;
+      box-shadow: 4px 0 12px var(--shadow);
+    }
+
+    .sidebar.open { left: 0; }
+    .menu-btn { display: flex; align-items: center; justify-content: center; }
+
+    .notebook-area { padding: 8px 44px; }
+
+    .paper::before { left: 82px; }
+    .line-date { width: 38px; font-size: 11px; }
+    .line-tag-btn { width: 40px; font-size: 8px; }
+    .line-text { font-size: 16px; }
+
+    .page-arrow { width: 34px; height: 34px; font-size: 18px; }
+    .page-arrow-left { left: 4px; }
+    .page-arrow-right { right: 4px; }
   }
+
+  @media (max-width: 400px) {
+    :root { --line-h: 30px; }
+    .line-date { width: 34px; font-size: 10px; }
+    .line-tag-btn { width: 36px; font-size: 7px; }
+    .paper::before { left: 74px; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #c8c0b0; border-radius: 2px; }
+
+  input[type="file"] { display: none; }
 </style>
 </head>
 <body>
+
+<div class="app" style="display:flex;width:100%;height:100vh;">
 
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <h1>Mein Notizbuch</h1>
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Notizen durchsuchen..." autocomplete="off">
+      <input type="text" id="searchInput" placeholder="Suchen..." autocomplete="off">
     </div>
   </div>
 
@@ -624,533 +529,526 @@
     <div class="tag-filters" id="tagFilters"></div>
   </div>
 
-  <button class="new-note-btn" id="newNoteBtn">+ Neue Notiz</button>
-
-  <div class="file-actions">
-    <button class="file-btn" id="exportBtn">Exportieren</button>
-    <button class="file-btn" id="importBtn">Importieren</button>
+  <div class="sidebar-actions">
+    <button class="sb-btn primary" id="newPageBtn">+ Neue Seite</button>
+    <div style="display:flex;gap:6px">
+      <button class="sb-btn" id="exportBtn" style="flex:1">Export</button>
+      <button class="sb-btn" id="importBtn" style="flex:1">Import</button>
+    </div>
   </div>
-  <input type="file" id="importFile" accept=".json" style="display:none">
+  <input type="file" id="importFile" accept=".json">
 
-  <div class="notes-list-section" id="notesList"></div>
-
-  <div class="note-count" id="noteCount"></div>
+  <div class="page-list" id="pageList"></div>
+  <div class="pg-count" id="pgCount"></div>
 </aside>
 
-<div class="overlay" id="overlay"></div>
+<main class="notebook-area" id="notebookArea">
+  <button class="page-arrow page-arrow-left" id="prevBtn">&#8249;</button>
 
-<main class="main" id="mainArea">
-  <div class="editor-empty" id="editorEmpty">
-    Wahle eine Notiz oder erstelle eine neue...
+  <div class="paper" id="paper">
+    <div class="paper-header">
+      <span class="paper-page-info" id="pageInfo">Seite 1</span>
+      <button class="paper-del-btn" id="delPageBtn">Seite entfernen</button>
+    </div>
+    <div class="lines-area" id="linesArea"></div>
+    <div class="paper-footer" id="pageFooter">Seite 1 von 1</div>
   </div>
 
-  <div class="editor-container" id="editorContainer" style="display:none">
-    <div class="editor-toolbar">
-      <div class="tag-input-wrapper">
-        <label>Tipp: Klicke rechts neben einer Zeile auf den Tag-Button</label>
-      </div>
-      <button class="delete-note-btn" id="deleteNoteBtn">Loschen</button>
-    </div>
-
-    <div class="notebook-page">
-      <input type="text" class="title-input" id="titleInput" placeholder="Titel...">
-      <div class="lines-editor" id="linesEditor"></div>
-    </div>
-
-    <div class="tag-dropdown" id="tagDropdown">
-      <input type="text" class="tag-dropdown-search" id="tagDropdownSearch" placeholder="Tag eingeben..." autocomplete="off">
-      <div class="tag-dropdown-list" id="tagDropdownList"></div>
-    </div>
-  </div>
+  <button class="page-arrow page-arrow-right" id="nextBtn">&#8250;</button>
 </main>
 
-<button class="mobile-toggle" id="mobileToggle">&#9776;</button>
+</div>
+
+<button class="menu-btn" id="menuBtn">&#9776;</button>
+<div class="overlay" id="overlay"></div>
+
+<div class="tag-dropdown" id="tagDd">
+  <input type="text" class="tag-dd-search" id="tagDdSearch" placeholder="Tag eingeben..." autocomplete="off">
+  <div class="tag-dd-list" id="tagDdList"></div>
+</div>
 
 <script>
 (function() {
+  const LINES_PER_PAGE = 18;
+
   // --- State ---
-  let notes = JSON.parse(localStorage.getItem('notizbuch_notes') || '[]');
-  let activeNoteId = null;
+  let pages = [];
+  let curPage = 0;
   let activeTagFilter = null;
   let searchQuery = '';
-  let saveTimeout = null;
-  let activeDropdownLineIndex = null;
-  let dropdownHighlightIndex = -1;
-
-  // --- Migrate old notes (content string → lines array) ---
-  notes.forEach(n => {
-    if (!n.lines) {
-      const text = n.content || '';
-      n.lines = text ? text.split('\n').map(t => ({ text: t, tag: '' })) : [{ text: '', tag: '' }];
-    }
-  });
-  localStorage.setItem('notizbuch_notes', JSON.stringify(notes));
+  let saveTimer = null;
+  let ddLineIdx = null;
+  let ddHlIdx = -1;
 
   // --- Elements ---
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
-  const mobileToggle = document.getElementById('mobileToggle');
+  const menuBtn = document.getElementById('menuBtn');
   const searchInput = document.getElementById('searchInput');
   const tagFilters = document.getElementById('tagFilters');
-  const notesList = document.getElementById('notesList');
-  const noteCount = document.getElementById('noteCount');
-  const newNoteBtn = document.getElementById('newNoteBtn');
-  const editorEmpty = document.getElementById('editorEmpty');
-  const editorContainer = document.getElementById('editorContainer');
-  const titleInput = document.getElementById('titleInput');
-  const linesEditor = document.getElementById('linesEditor');
-  const deleteNoteBtn = document.getElementById('deleteNoteBtn');
-  const tagDropdown = document.getElementById('tagDropdown');
-  const tagDropdownSearch = document.getElementById('tagDropdownSearch');
-  const tagDropdownList = document.getElementById('tagDropdownList');
+  const pageList = document.getElementById('pageList');
+  const pgCount = document.getElementById('pgCount');
+  const newPageBtn = document.getElementById('newPageBtn');
+  const linesArea = document.getElementById('linesArea');
+  const pageInfo = document.getElementById('pageInfo');
+  const pageFooter = document.getElementById('pageFooter');
+  const delPageBtn = document.getElementById('delPageBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const paper = document.getElementById('paper');
+  const tagDd = document.getElementById('tagDd');
+  const tagDdSearch = document.getElementById('tagDdSearch');
+  const tagDdList = document.getElementById('tagDdList');
 
   // --- Helpers ---
-  function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  function genId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
 
   function save() {
-    localStorage.setItem('notizbuch_notes', JSON.stringify(notes));
+    localStorage.setItem('notizbuch_pages', JSON.stringify(pages));
   }
 
   function scheduleSave() {
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(save, 300);
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 400);
   }
 
-  function formatDate(ts) {
-    const d = new Date(ts);
-    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
-      + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  function todayStr() {
+    const d = new Date();
+    return String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.';
   }
 
-  function syncNoteFromLines(note) {
-    note.content = note.lines.map(l => l.text).join('\n');
-    note.tags = [...new Set(note.lines.map(l => l.tag).filter(Boolean))];
-  }
-
-  function getAllTags() {
-    const tagMap = {};
-    notes.forEach(n => {
-      (n.tags || []).forEach(t => {
-        tagMap[t] = (tagMap[t] || 0) + 1;
-      });
-    });
-    return Object.entries(tagMap).sort((a, b) => b[1] - a[1]);
-  }
-
-  function getAllLineTags() {
-    const tags = new Set();
-    notes.forEach(n => {
-      (n.lines || []).forEach(l => {
-        if (l.tag) tags.add(l.tag);
-      });
-    });
-    return [...tags].sort();
-  }
-
-  function getFilteredNotes() {
-    let filtered = notes;
-
-    if (activeTagFilter) {
-      filtered = filtered.filter(n => (n.tags || []).includes(activeTagFilter));
-    }
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(n =>
-        (n.title || '').toLowerCase().includes(q) ||
-        (n.content || '').toLowerCase().includes(q) ||
-        (n.tags || []).some(t => t.toLowerCase().includes(q))
-      );
-    }
-
-    return filtered.sort((a, b) => b.updatedAt - a.updatedAt);
-  }
-
-  function esc(str) {
+  function esc(s) {
     const d = document.createElement('div');
-    d.textContent = str;
+    d.textContent = s;
     return d.innerHTML;
   }
 
-  // --- Render ---
-  function renderTagFilters() {
-    const tags = getAllTags();
-    let html = `<span class="tag-chip tag-chip-all ${!activeTagFilter ? 'active' : ''}" data-tag="">Alle <span class="tag-count">${notes.length}</span></span>`;
-    tags.forEach(([tag, count]) => {
-      html += `<span class="tag-chip ${activeTagFilter === tag ? 'active' : ''}" data-tag="${esc(tag)}">${esc(tag)} <span class="tag-count">${count}</span></span>`;
-    });
-    tagFilters.innerHTML = html;
+  function emptyPage() {
+    const lines = [];
+    for (let i = 0; i < LINES_PER_PAGE; i++) lines.push({ text: '', tag: '', date: '' });
+    return { id: genId(), lines, createdAt: Date.now(), updatedAt: Date.now() };
+  }
 
-    tagFilters.querySelectorAll('.tag-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        const tag = chip.dataset.tag;
-        activeTagFilter = tag || null;
-        renderTagFilters();
-        renderNotesList();
+  function dateShort(ts) {
+    const d = new Date(ts);
+    return String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.';
+  }
+
+  // --- Load & Migrate ---
+  function load() {
+    const raw = localStorage.getItem('notizbuch_pages');
+    if (raw) { pages = JSON.parse(raw); return; }
+
+    // Migrate from old format
+    const oldRaw = localStorage.getItem('notizbuch_notes');
+    if (oldRaw) {
+      const oldNotes = JSON.parse(oldRaw);
+      oldNotes.forEach(n => {
+        const src = n.lines || (n.content || '').split('\n').map(t => ({ text: t, tag: '' }));
+        const ds = dateShort(n.createdAt || Date.now());
+        const allLines = src.map(l => ({ text: l.text || '', tag: l.tag || '', date: l.date || ds }));
+
+        // Split into pages of LINES_PER_PAGE
+        for (let i = 0; i < allLines.length; i += LINES_PER_PAGE) {
+          const chunk = allLines.slice(i, i + LINES_PER_PAGE);
+          while (chunk.length < LINES_PER_PAGE) chunk.push({ text: '', tag: '', date: '' });
+          pages.push({
+            id: (i === 0 ? n.id : genId()),
+            lines: chunk,
+            createdAt: n.createdAt || Date.now(),
+            updatedAt: n.updatedAt || Date.now()
+          });
+        }
+      });
+    }
+
+    if (pages.length === 0) pages = [emptyPage()];
+    save();
+  }
+
+  // --- Tag helpers ---
+  function allTags() {
+    const m = {};
+    pages.forEach(p => p.lines.forEach(l => { if (l.tag) m[l.tag] = (m[l.tag] || 0) + 1; }));
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }
+
+  function allTagNames() {
+    const s = new Set();
+    pages.forEach(p => p.lines.forEach(l => { if (l.tag) s.add(l.tag); }));
+    return [...s].sort();
+  }
+
+  function pageTags(p) {
+    return [...new Set(p.lines.map(l => l.tag).filter(Boolean))];
+  }
+
+  function pagePreview(p) {
+    const f = p.lines.find(l => l.text.trim());
+    return f ? f.text.trim().slice(0, 55) : 'Leere Seite';
+  }
+
+  function pageDateRange(p) {
+    const dates = p.lines.filter(l => l.date && l.text.trim()).map(l => l.date);
+    if (!dates.length) return '';
+    const u = [...new Set(dates)];
+    return u.length === 1 ? u[0] : u[0] + ' – ' + u[u.length - 1];
+  }
+
+  function filteredIndices() {
+    let idx = pages.map((_, i) => i);
+    if (activeTagFilter) idx = idx.filter(i => pages[i].lines.some(l => l.tag === activeTagFilter));
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      idx = idx.filter(i => pages[i].lines.some(l => l.text.toLowerCase().includes(q) || l.tag.toLowerCase().includes(q)));
+    }
+    return idx;
+  }
+
+  // --- Render sidebar ---
+  function renderTags() {
+    const tags = allTags();
+    let h = `<span class="tag-chip ${!activeTagFilter ? 'active' : ''}" data-t="">Alle<span class="tc">${pages.length}</span></span>`;
+    tags.forEach(([t, c]) => {
+      h += `<span class="tag-chip ${activeTagFilter === t ? 'active' : ''}" data-t="${esc(t)}">${esc(t)}<span class="tc">${c}</span></span>`;
+    });
+    tagFilters.innerHTML = h;
+    tagFilters.querySelectorAll('.tag-chip').forEach(el => {
+      el.addEventListener('click', () => {
+        activeTagFilter = el.dataset.t || null;
+        renderTags();
+        renderPageList();
       });
     });
   }
 
-  function renderNotesList() {
-    const filtered = getFilteredNotes();
-    if (filtered.length === 0) {
-      notesList.innerHTML = '<div style="padding:20px;text-align:center;color:#aaa;font-size:13px;">Keine Notizen gefunden</div>';
+  function renderPageList() {
+    const idx = filteredIndices();
+    if (!idx.length) {
+      pageList.innerHTML = '<div style="padding:14px;text-align:center;color:#aaa;font-size:11px;">Keine Seiten</div>';
     } else {
-      notesList.innerHTML = filtered.map(n => {
-        const preview = (n.content || '').replace(/\n/g, ' ').slice(0, 80);
-        const tagsHtml = (n.tags || []).map(t => `<span class="note-item-tag">${esc(t)}</span>`).join('');
-        return `
-          <div class="note-item ${n.id === activeNoteId ? 'active' : ''}" data-id="${n.id}">
-            <div class="note-item-title">${esc(n.title || 'Ohne Titel')}</div>
-            <div class="note-item-preview">${esc(preview) || 'Leere Notiz'}</div>
-            <div class="note-item-meta">
-              <span class="note-item-date">${formatDate(n.updatedAt)}</span>
-              ${tagsHtml}
-            </div>
-          </div>`;
+      pageList.innerHTML = idx.map(i => {
+        const p = pages[i];
+        const tags = pageTags(p).map(t => `<span class="pg-item-tag">${esc(t)}</span>`).join('');
+        return `<div class="pg-item ${i === curPage ? 'active' : ''}" data-i="${i}">
+          <div class="pg-item-preview">${esc(pagePreview(p))}</div>
+          <div class="pg-item-meta"><span class="pg-item-date">S.${i + 1} ${pageDateRange(p)}</span>${tags}</div>
+        </div>`;
       }).join('');
     }
-
-    noteCount.textContent = `${filtered.length} von ${notes.length} Notizen`;
-
-    notesList.querySelectorAll('.note-item').forEach(item => {
-      item.addEventListener('click', () => {
-        openNote(item.dataset.id);
-        closeSidebarMobile();
-      });
+    pgCount.textContent = `${idx.length} von ${pages.length} Seiten`;
+    pageList.querySelectorAll('.pg-item').forEach(el => {
+      el.addEventListener('click', () => { goTo(+el.dataset.i); closeSidebar(); });
     });
   }
 
-  // --- Lines Editor ---
-  function renderLines() {
-    const note = notes.find(n => n.id === activeNoteId);
-    if (!note) return;
-    if (!note.lines || note.lines.length === 0) {
-      note.lines = [{ text: '', tag: '' }];
+  // --- Render paper ---
+  function renderPage(dir) {
+    const pg = pages[curPage];
+    if (!pg) return;
+
+    if (dir) {
+      linesArea.classList.remove('turn-left', 'turn-right');
+      void linesArea.offsetWidth;
+      linesArea.classList.add(dir === 'left' ? 'turn-left' : 'turn-right');
     }
 
-    linesEditor.innerHTML = '';
-    note.lines.forEach((line, i) => {
+    pageInfo.textContent = 'Seite ' + (curPage + 1);
+    pageFooter.textContent = 'Seite ' + (curPage + 1) + ' von ' + pages.length;
+    prevBtn.disabled = curPage <= 0;
+    nextBtn.disabled = false;
+
+    linesArea.innerHTML = '';
+    pg.lines.forEach((line, i) => {
       const row = document.createElement('div');
       row.className = 'line-row';
-      row.dataset.index = i;
 
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'line-text';
-      input.value = line.text;
-      if (i === 0 && note.lines.length === 1 && !line.text) {
-        input.placeholder = 'Schreibe hier...';
-      }
+      const dateIn = document.createElement('input');
+      dateIn.type = 'text';
+      dateIn.className = 'line-date';
+      dateIn.value = line.date;
+      dateIn.placeholder = '';
+      dateIn.maxLength = 6;
 
       const tagBtn = document.createElement('button');
       tagBtn.type = 'button';
       tagBtn.className = 'line-tag-btn' + (line.tag ? ' has-tag' : '');
       tagBtn.textContent = line.tag || '#';
-      tagBtn.title = line.tag ? 'Tag: ' + line.tag : 'Tag hinzufuegen';
 
-      // --- Line text events ---
-      input.addEventListener('input', () => {
-        note.lines[i].text = input.value;
-        syncNoteFromLines(note);
-        note.updatedAt = Date.now();
+      const textIn = document.createElement('input');
+      textIn.type = 'text';
+      textIn.className = 'line-text';
+      textIn.value = line.text;
+      if (i === 0 && !pg.lines.some(l => l.text)) textIn.placeholder = 'Schreibe hier...';
+
+      // Events
+      dateIn.addEventListener('input', () => {
+        pg.lines[i].date = dateIn.value;
+        pg.updatedAt = Date.now();
         scheduleSave();
-        renderNotesList();
       });
 
-      input.addEventListener('keydown', (e) => {
+      textIn.addEventListener('input', () => {
+        pg.lines[i].text = textIn.value;
+        if (textIn.value && !pg.lines[i].date) {
+          pg.lines[i].date = todayStr();
+          dateIn.value = pg.lines[i].date;
+        }
+        pg.updatedAt = Date.now();
+        scheduleSave();
+        renderPageList();
+      });
+
+      textIn.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          const pos = input.selectionStart;
-          const before = input.value.slice(0, pos);
-          const after = input.value.slice(pos);
-          note.lines[i].text = before;
-          note.lines.splice(i + 1, 0, { text: after, tag: '' });
-          syncNoteFromLines(note);
-          note.updatedAt = Date.now();
-          save();
-          renderLines();
-          focusLine(i + 1, 0);
-          renderNotesList();
-        } else if (e.key === 'Backspace' && input.selectionStart === 0 && input.selectionEnd === 0 && i > 0) {
+          if (i < LINES_PER_PAGE - 1) {
+            focusLine(i + 1);
+          } else {
+            // Last line → next page
+            if (curPage < pages.length - 1) {
+              goTo(curPage + 1, 'right');
+              setTimeout(() => focusLine(0), 250);
+            } else {
+              addPage();
+              setTimeout(() => focusLine(0), 250);
+            }
+          }
+        } else if (e.key === 'Backspace' && textIn.selectionStart === 0 && textIn.selectionEnd === 0) {
+          if (!textIn.value && !pg.lines[i].date && !pg.lines[i].tag && i > 0) {
+            e.preventDefault();
+            focusLine(i - 1, 'end');
+          } else if (i === 0 && !textIn.value && curPage > 0) {
+            e.preventDefault();
+            goTo(curPage - 1, 'left');
+            setTimeout(() => focusLine(LINES_PER_PAGE - 1, 'end'), 250);
+          }
+        } else if (e.key === 'ArrowUp') {
           e.preventDefault();
-          const prevLen = note.lines[i - 1].text.length;
-          note.lines[i - 1].text += note.lines[i].text;
-          note.lines.splice(i, 1);
-          syncNoteFromLines(note);
-          note.updatedAt = Date.now();
-          save();
-          renderLines();
-          focusLine(i - 1, prevLen);
-          renderTagFilters();
-          renderNotesList();
-        } else if (e.key === 'ArrowUp' && i > 0) {
+          if (i > 0) focusLine(i - 1);
+          else if (curPage > 0) {
+            goTo(curPage - 1, 'left');
+            setTimeout(() => focusLine(LINES_PER_PAGE - 1), 250);
+          }
+        } else if (e.key === 'ArrowDown') {
           e.preventDefault();
-          focusLine(i - 1, Math.min(input.selectionStart, note.lines[i - 1].text.length));
-        } else if (e.key === 'ArrowDown' && i < note.lines.length - 1) {
-          e.preventDefault();
-          focusLine(i + 1, Math.min(input.selectionStart, note.lines[i + 1].text.length));
+          if (i < LINES_PER_PAGE - 1) focusLine(i + 1);
+          else if (curPage < pages.length - 1) {
+            goTo(curPage + 1, 'right');
+            setTimeout(() => focusLine(0), 250);
+          }
         }
       });
 
-      // --- Tag button event ---
       tagBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        openTagDropdown(i, tagBtn);
+        openTagDd(i, tagBtn);
       });
 
-      row.appendChild(input);
+      row.appendChild(dateIn);
       row.appendChild(tagBtn);
-      linesEditor.appendChild(row);
+      row.appendChild(textIn);
+      linesArea.appendChild(row);
     });
+
+    renderPageList();
   }
 
-  function focusLine(index, cursorPos) {
+  function focusLine(idx, pos) {
     requestAnimationFrame(() => {
-      const rows = linesEditor.querySelectorAll('.line-row');
-      if (rows[index]) {
-        const input = rows[index].querySelector('.line-text');
-        input.focus();
-        if (typeof cursorPos === 'number') {
-          input.setSelectionRange(cursorPos, cursorPos);
-        }
-      }
+      const rows = linesArea.querySelectorAll('.line-row');
+      if (!rows[idx]) return;
+      const inp = rows[idx].querySelector('.line-text');
+      inp.focus();
+      if (pos === 'end') inp.setSelectionRange(inp.value.length, inp.value.length);
+      else if (typeof pos === 'number') inp.setSelectionRange(pos, pos);
     });
   }
 
-  // --- Tag Dropdown ---
-  function openTagDropdown(lineIndex, btnElement) {
-    activeDropdownLineIndex = lineIndex;
-    dropdownHighlightIndex = -1;
-
-    const rect = btnElement.getBoundingClientRect();
-    tagDropdown.style.top = rect.bottom + 4 + 'px';
-    tagDropdown.style.left = '';
-    tagDropdown.style.right = '';
-
-    // Position: try to align right edge with button right edge
-    const dropdownWidth = 220;
-    const rightEdge = rect.right;
-    if (rightEdge - dropdownWidth < 0) {
-      tagDropdown.style.left = Math.max(4, rect.left) + 'px';
-    } else {
-      tagDropdown.style.left = (rightEdge - dropdownWidth) + 'px';
-    }
-
-    tagDropdown.classList.add('open');
-    tagDropdownSearch.value = '';
-    tagDropdownSearch.focus();
-    renderTagSuggestions('');
+  // --- Navigation ---
+  function goTo(idx, dir) {
+    if (idx < 0 || idx >= pages.length) return;
+    curPage = idx;
+    closeTagDd();
+    renderPage(dir);
   }
 
-  function closeTagDropdown() {
-    tagDropdown.classList.remove('open');
-    activeDropdownLineIndex = null;
-    dropdownHighlightIndex = -1;
-  }
-
-  function renderTagSuggestions(query) {
-    const allTags = getAllLineTags();
-    const q = query.trim().toLowerCase();
-    const filtered = q ? allTags.filter(t => t.includes(q)) : allTags;
-
-    let html = '';
-
-    // "Create new" option if query doesn't match existing
-    if (q && !allTags.includes(q)) {
-      html += `<div class="tag-suggestion create" data-tag="${esc(q)}" data-idx="0"><span class="tag-suggestion-dot"></span> "${esc(query.trim())}" erstellen</div>`;
-    }
-
-    filtered.forEach((tag, i) => {
-      const idx = (q && !allTags.includes(q)) ? i + 1 : i;
-      html += `<div class="tag-suggestion" data-tag="${esc(tag)}" data-idx="${idx}"><span class="tag-suggestion-dot"></span> ${esc(tag)}</div>`;
-    });
-
-    // "Remove tag" option if line has a tag
-    const note = notes.find(n => n.id === activeNoteId);
-    if (note && note.lines[activeDropdownLineIndex] && note.lines[activeDropdownLineIndex].tag) {
-      html += `<div class="tag-suggestion remove" data-tag="" data-idx="${filtered.length + ((q && !allTags.includes(q)) ? 1 : 0)}">Tag entfernen</div>`;
-    }
-
-    if (!html) {
-      html = '<div class="tag-suggestion-empty">Tippe einen Tag-Namen...</div>';
-    }
-
-    tagDropdownList.innerHTML = html;
-
-    tagDropdownList.querySelectorAll('.tag-suggestion[data-tag]').forEach(item => {
-      item.addEventListener('click', () => {
-        selectTagForLine(item.dataset.tag);
-      });
-    });
-  }
-
-  function selectTagForLine(tag) {
-    const note = notes.find(n => n.id === activeNoteId);
-    if (!note || activeDropdownLineIndex === null) return;
-    note.lines[activeDropdownLineIndex].tag = tag ? tag.trim().toLowerCase() : '';
-    syncNoteFromLines(note);
-    note.updatedAt = Date.now();
+  function addPage() {
+    pages.push(emptyPage());
+    curPage = pages.length - 1;
     save();
-    renderLines();
-    renderTagFilters();
-    renderNotesList();
-    closeTagDropdown();
+    renderPage('right');
+    renderTags();
   }
 
-  // Dropdown search input events
-  tagDropdownSearch.addEventListener('input', () => {
-    dropdownHighlightIndex = -1;
-    renderTagSuggestions(tagDropdownSearch.value);
+  function deletePage() {
+    if (pages.length <= 1) {
+      pages[0] = emptyPage();
+      save();
+      renderPage();
+      renderTags();
+      renderPageList();
+      return;
+    }
+    if (!confirm('Diese Seite wirklich entfernen?')) return;
+    pages.splice(curPage, 1);
+    if (curPage >= pages.length) curPage = pages.length - 1;
+    save();
+    renderPage();
+    renderTags();
+    renderPageList();
+  }
+
+  // --- Tag dropdown ---
+  function openTagDd(lineIdx, btn) {
+    ddLineIdx = lineIdx;
+    ddHlIdx = -1;
+    const r = btn.getBoundingClientRect();
+    tagDd.style.top = (r.bottom + 4) + 'px';
+    tagDd.style.left = Math.max(4, Math.min(r.left, window.innerWidth - 200)) + 'px';
+    tagDd.classList.add('open');
+    tagDdSearch.value = '';
+    tagDdSearch.focus();
+    renderTagDd('');
+  }
+
+  function closeTagDd() {
+    tagDd.classList.remove('open');
+    ddLineIdx = null;
+    ddHlIdx = -1;
+  }
+
+  function renderTagDd(query) {
+    const all = allTagNames();
+    const q = query.trim().toLowerCase();
+    const filtered = q ? all.filter(t => t.includes(q)) : all;
+    let h = '';
+
+    if (q && !all.includes(q)) {
+      h += `<div class="tag-dd-item create" data-t="${esc(q)}"><span class="tag-dd-dot"></span>"${esc(query.trim())}" erstellen</div>`;
+    }
+    filtered.forEach(t => {
+      h += `<div class="tag-dd-item" data-t="${esc(t)}"><span class="tag-dd-dot"></span>${esc(t)}</div>`;
+    });
+
+    const pg = pages[curPage];
+    if (pg && pg.lines[ddLineIdx] && pg.lines[ddLineIdx].tag) {
+      h += `<div class="tag-dd-item remove" data-t="">Tag entfernen</div>`;
+    }
+
+    tagDdList.innerHTML = h || '<div class="tag-dd-empty">Tag-Name tippen...</div>';
+
+    tagDdList.querySelectorAll('.tag-dd-item[data-t]').forEach(el => {
+      el.addEventListener('click', () => pickTag(el.dataset.t));
+    });
+  }
+
+  function pickTag(tag) {
+    const pg = pages[curPage];
+    if (!pg || ddLineIdx === null) return;
+    pg.lines[ddLineIdx].tag = tag ? tag.trim().toLowerCase() : '';
+    pg.updatedAt = Date.now();
+    save();
+    renderPage();
+    renderTags();
+    closeTagDd();
+  }
+
+  tagDdSearch.addEventListener('input', () => {
+    ddHlIdx = -1;
+    renderTagDd(tagDdSearch.value);
   });
 
-  tagDropdownSearch.addEventListener('keydown', (e) => {
-    const items = tagDropdownList.querySelectorAll('.tag-suggestion[data-tag]');
+  tagDdSearch.addEventListener('keydown', (e) => {
+    const items = tagDdList.querySelectorAll('.tag-dd-item[data-t]');
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      dropdownHighlightIndex = Math.min(dropdownHighlightIndex + 1, items.length - 1);
-      updateDropdownHighlight(items);
+      ddHlIdx = Math.min(ddHlIdx + 1, items.length - 1);
+      items.forEach((el, i) => el.classList.toggle('hl', i === ddHlIdx));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      dropdownHighlightIndex = Math.max(dropdownHighlightIndex - 1, 0);
-      updateDropdownHighlight(items);
+      ddHlIdx = Math.max(ddHlIdx - 1, 0);
+      items.forEach((el, i) => el.classList.toggle('hl', i === ddHlIdx));
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (dropdownHighlightIndex >= 0 && items[dropdownHighlightIndex]) {
-        selectTagForLine(items[dropdownHighlightIndex].dataset.tag);
-      } else {
-        // Create/assign the typed tag
-        const val = tagDropdownSearch.value.trim().toLowerCase();
-        if (val) selectTagForLine(val);
+      if (ddHlIdx >= 0 && items[ddHlIdx]) pickTag(items[ddHlIdx].dataset.t);
+      else {
+        const v = tagDdSearch.value.trim().toLowerCase();
+        if (v) pickTag(v);
       }
     } else if (e.key === 'Escape') {
-      closeTagDropdown();
+      closeTagDd();
     }
   });
 
-  function updateDropdownHighlight(items) {
-    items.forEach((item, i) => {
-      item.classList.toggle('active', i === dropdownHighlightIndex);
-    });
-    if (items[dropdownHighlightIndex]) {
-      items[dropdownHighlightIndex].scrollIntoView({ block: 'nearest' });
-    }
-  }
-
-  // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
-    if (!tagDropdown.contains(e.target) && !e.target.classList.contains('line-tag-btn')) {
-      closeTagDropdown();
-    }
+    if (!tagDd.contains(e.target) && !e.target.classList.contains('line-tag-btn')) closeTagDd();
   });
-
-  // --- Actions ---
-  function createNote() {
-    const note = {
-      id: generateId(),
-      title: '',
-      content: '',
-      tags: [],
-      lines: [{ text: '', tag: '' }],
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    };
-    notes.unshift(note);
-    save();
-    openNote(note.id);
-    renderTagFilters();
-    renderNotesList();
-    titleInput.focus();
-    closeSidebarMobile();
-  }
-
-  function openNote(id) {
-    activeNoteId = id;
-    const note = notes.find(n => n.id === id);
-    if (!note) return;
-
-    // Ensure lines exist
-    if (!note.lines || note.lines.length === 0) {
-      const text = note.content || '';
-      note.lines = text ? text.split('\n').map(t => ({ text: t, tag: '' })) : [{ text: '', tag: '' }];
-    }
-
-    editorEmpty.style.display = 'none';
-    editorContainer.style.display = 'flex';
-
-    titleInput.value = note.title || '';
-    closeTagDropdown();
-    renderLines();
-    renderNotesList();
-  }
-
-  function closeEditor() {
-    activeNoteId = null;
-    editorEmpty.style.display = 'flex';
-    editorContainer.style.display = 'none';
-    closeTagDropdown();
-    renderNotesList();
-  }
-
-  function deleteNote() {
-    if (!activeNoteId) return;
-    const note = notes.find(n => n.id === activeNoteId);
-    if (!note) return;
-    if (!confirm(`Notiz "${note.title || 'Ohne Titel'}" wirklich loschen?`)) return;
-    notes = notes.filter(n => n.id !== activeNoteId);
-    save();
-    closeEditor();
-    renderTagFilters();
-    renderNotesList();
-  }
-
-  function closeSidebarMobile() {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('visible');
-  }
 
   // --- Events ---
-  newNoteBtn.addEventListener('click', createNote);
-  deleteNoteBtn.addEventListener('click', deleteNote);
-
-  titleInput.addEventListener('input', () => {
-    const note = notes.find(n => n.id === activeNoteId);
-    if (!note) return;
-    note.title = titleInput.value;
-    note.updatedAt = Date.now();
-    scheduleSave();
-    renderNotesList();
+  newPageBtn.addEventListener('click', () => { addPage(); closeSidebar(); });
+  delPageBtn.addEventListener('click', deletePage);
+  prevBtn.addEventListener('click', () => goTo(curPage - 1, 'left'));
+  nextBtn.addEventListener('click', () => {
+    if (curPage < pages.length - 1) goTo(curPage + 1, 'right');
+    else addPage();
   });
 
-  titleInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      focusLine(0, 0);
-    }
-  });
+  searchInput.addEventListener('input', () => { searchQuery = searchInput.value; renderPageList(); });
 
-  searchInput.addEventListener('input', () => {
-    searchQuery = searchInput.value;
-    renderNotesList();
-  });
-
-  mobileToggle.addEventListener('click', () => {
+  menuBtn.addEventListener('click', () => {
     sidebar.classList.toggle('open');
     overlay.classList.toggle('visible');
   });
 
-  overlay.addEventListener('click', closeSidebarMobile);
+  overlay.addEventListener('click', closeSidebar);
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+  }
+
+  // --- Swipe ---
+  let touchX0 = 0, touchY0 = 0, swiping = false;
+
+  paper.addEventListener('touchstart', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+    touchX0 = e.touches[0].clientX;
+    touchY0 = e.touches[0].clientY;
+    swiping = true;
+  }, { passive: true });
+
+  paper.addEventListener('touchend', (e) => {
+    if (!swiping) return;
+    swiping = false;
+    const dx = e.changedTouches[0].clientX - touchX0;
+    const dy = e.changedTouches[0].clientY - touchY0;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) {
+        if (curPage < pages.length - 1) goTo(curPage + 1, 'right');
+        else addPage();
+      } else {
+        if (curPage > 0) goTo(curPage - 1, 'left');
+      }
+    }
+  }, { passive: true });
+
+  // --- Keyboard shortcuts ---
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); addPage(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowLeft') { e.preventDefault(); if (curPage > 0) goTo(curPage - 1, 'left'); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (curPage < pages.length - 1) goTo(curPage + 1, 'right');
+      else addPage();
+    }
+  });
 
   // --- Export / Import ---
-  const exportBtn = document.getElementById('exportBtn');
-  const importBtn = document.getElementById('importBtn');
-  const importFile = document.getElementById('importFile');
-
-  exportBtn.addEventListener('click', () => {
-    const data = JSON.stringify(notes, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(pages, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -1159,56 +1057,35 @@
     URL.revokeObjectURL(url);
   });
 
-  importBtn.addEventListener('click', () => importFile.click());
+  document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
 
-  importFile.addEventListener('change', (e) => {
+  document.getElementById('importFile').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (evt) => {
       try {
-        const imported = JSON.parse(evt.target.result);
-        if (!Array.isArray(imported)) {
-          alert('Ungueltige Datei: Erwartet ein Array von Notizen.');
-          return;
-        }
-        const existingIds = new Set(notes.map(n => n.id));
+        const imp = JSON.parse(evt.target.result);
+        if (!Array.isArray(imp)) { alert('Ungueltige Datei.'); return; }
+        const ids = new Set(pages.map(p => p.id));
         let added = 0;
-        imported.forEach(n => {
-          if (n.id && !existingIds.has(n.id)) {
-            // Migrate imported notes too
-            if (!n.lines) {
-              const text = n.content || '';
-              n.lines = text ? text.split('\n').map(t => ({ text: t, tag: '' })) : [{ text: '', tag: '' }];
-            }
-            notes.push(n);
-            existingIds.add(n.id);
-            added++;
-          }
+        imp.forEach(p => {
+          if (p.id && !ids.has(p.id) && p.lines) { pages.push(p); ids.add(p.id); added++; }
         });
         save();
-        renderTagFilters();
-        renderNotesList();
-        alert(`${added} neue Notiz(en) importiert. ${imported.length - added} bereits vorhanden.`);
-      } catch (err) {
-        alert('Fehler beim Lesen der Datei: ' + err.message);
-      }
+        renderTags();
+        renderPage();
+        alert(added + ' Seite(n) importiert.');
+      } catch (err) { alert('Fehler: ' + err.message); }
     };
     reader.readAsText(file);
-    importFile.value = '';
-  });
-
-  // Keyboard shortcuts
-  document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-      e.preventDefault();
-      createNote();
-    }
+    e.target.value = '';
   });
 
   // --- Init ---
-  renderTagFilters();
-  renderNotesList();
+  load();
+  renderTags();
+  renderPage();
 })();
 </script>
 </body>
