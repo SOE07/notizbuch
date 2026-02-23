@@ -235,7 +235,7 @@
   .paper::before {
     content: '';
     position: absolute;
-    left: 100px;
+    left: 120px;
     top: 0;
     bottom: 0;
     width: 2px;
@@ -307,6 +307,176 @@
     align-items: center;
     height: var(--line-h);
     gap: 2px;
+  }
+
+  /* Checkbox */
+  .line-check {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: var(--tag-active);
+    margin: 0 1px;
+    opacity: 0.4;
+    transition: opacity 0.15s;
+  }
+
+  .line-check:hover { opacity: 0.8; }
+  .line-check:checked { opacity: 1; }
+
+  .line-text.done {
+    text-decoration: line-through;
+    color: var(--ink-light);
+    opacity: 0.5;
+  }
+
+  /* Sidebar tabs */
+  .sidebar-tabs {
+    display: flex;
+    border-bottom: 1px solid #d8d0c0;
+  }
+
+  .sidebar-tab {
+    flex: 1;
+    padding: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--ink-light);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .sidebar-tab:hover { color: var(--ink); background: #e8e2d5; }
+  .sidebar-tab.active { color: var(--tag-active); border-bottom-color: var(--tag-active); }
+
+  /* ToDo section */
+  .todo-section { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .todo-section.visible { display: flex; }
+
+  .todo-filters {
+    display: flex;
+    gap: 4px;
+    padding: 8px 14px;
+    border-bottom: 1px solid #d8d0c0;
+    flex-wrap: wrap;
+  }
+
+  .todo-filter {
+    padding: 3px 8px;
+    border-radius: 8px;
+    background: #f0ebe0;
+    color: var(--ink-light);
+    font-size: 10px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .todo-filter:hover { background: #e0d8c8; }
+  .todo-filter.active { background: var(--tag-active); color: white; }
+  .todo-filter .tf-count { margin-left: 2px; opacity: 0.7; }
+
+  .todo-tag-filters {
+    display: flex;
+    gap: 3px;
+    padding: 6px 14px;
+    border-bottom: 1px solid #d8d0c0;
+    flex-wrap: wrap;
+  }
+
+  .todo-tag-chip {
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: var(--tag-bg);
+    color: var(--ink);
+    font-size: 9px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.12s;
+  }
+
+  .todo-tag-chip:hover { background: #d0e0f0; }
+  .todo-tag-chip.active { background: var(--tag-active); color: white; }
+
+  .todo-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2px 0;
+  }
+
+  .todo-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.1s;
+    border-bottom: 1px solid #f0ebe0;
+  }
+
+  .todo-item:hover { background: #e8e2d5; }
+
+  .todo-item-check {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: var(--tag-active);
+  }
+
+  .todo-item-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .todo-item-text {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .todo-item-text.done {
+    text-decoration: line-through;
+    color: var(--ink-light);
+    opacity: 0.5;
+  }
+
+  .todo-item-meta {
+    font-size: 9px;
+    color: var(--ink-light);
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .todo-item-tag {
+    font-size: 8px;
+    padding: 0 4px;
+    border-radius: 3px;
+    background: var(--tag-bg);
+    color: var(--ink-light);
+  }
+
+  .todo-item-page {
+    font-size: 8px;
+    color: var(--tag-active);
+    cursor: pointer;
+  }
+
+  .todo-item-page:hover { text-decoration: underline; }
+
+  .todo-count {
+    padding: 5px 14px;
+    font-size: 9px;
+    color: var(--ink-light);
+    text-align: center;
+    border-top: 1px solid #d8d0c0;
   }
 
   .line-date {
@@ -487,7 +657,8 @@
 
     .notebook-area { padding: 8px 44px; }
 
-    .paper::before { left: 82px; }
+    .paper::before { left: 100px; }
+    .line-check { width: 14px; height: 14px; }
     .line-date { width: 38px; font-size: 11px; }
     .line-tag-btn { width: 40px; font-size: 8px; }
     .line-text { font-size: 16px; }
@@ -501,7 +672,8 @@
     :root { --line-h: 30px; }
     .line-date { width: 34px; font-size: 10px; }
     .line-tag-btn { width: 36px; font-size: 7px; }
-    .paper::before { left: 74px; }
+    .paper::before { left: 88px; }
+    .line-check { width: 13px; height: 13px; }
   }
 
   /* Scrollbar */
@@ -538,8 +710,20 @@
   </div>
   <input type="file" id="importFile" accept=".json">
 
+  <div class="sidebar-tabs">
+    <button class="sidebar-tab active" data-tab="pages" id="tabPages">Seiten</button>
+    <button class="sidebar-tab" data-tab="todos" id="tabTodos">ToDos</button>
+  </div>
+
   <div class="page-list" id="pageList"></div>
   <div class="pg-count" id="pgCount"></div>
+
+  <div class="todo-section" id="todoSection">
+    <div class="todo-filters" id="todoFilters"></div>
+    <div class="todo-tag-filters" id="todoTagFilters"></div>
+    <div class="todo-list" id="todoList"></div>
+    <div class="todo-count" id="todoCount"></div>
+  </div>
 </aside>
 
 <main class="notebook-area" id="notebookArea">
@@ -579,6 +763,9 @@
   let saveTimer = null;
   let ddLineIdx = null;
   let ddHlIdx = -1;
+  let activeTab = 'pages'; // 'pages' or 'todos'
+  let todoFilter = 'open'; // 'open', 'done', 'all'
+  let todoTagFilter = null;
 
   // --- Elements ---
   const sidebar = document.getElementById('sidebar');
@@ -599,6 +786,13 @@
   const tagDd = document.getElementById('tagDd');
   const tagDdSearch = document.getElementById('tagDdSearch');
   const tagDdList = document.getElementById('tagDdList');
+  const tabPages = document.getElementById('tabPages');
+  const tabTodos = document.getElementById('tabTodos');
+  const todoSection = document.getElementById('todoSection');
+  const todoFilters = document.getElementById('todoFilters');
+  const todoTagFilters = document.getElementById('todoTagFilters');
+  const todoList = document.getElementById('todoList');
+  const todoCount = document.getElementById('todoCount');
 
   // --- Helpers ---
   function genId() {
@@ -627,7 +821,7 @@
 
   function emptyPage() {
     const lines = [];
-    for (let i = 0; i < LINES_PER_PAGE; i++) lines.push({ text: '', tag: '', date: '' });
+    for (let i = 0; i < LINES_PER_PAGE; i++) lines.push({ text: '', tag: '', date: '', done: false });
     return { id: genId(), lines, createdAt: Date.now(), updatedAt: Date.now() };
   }
 
@@ -648,12 +842,12 @@
       oldNotes.forEach(n => {
         const src = n.lines || (n.content || '').split('\n').map(t => ({ text: t, tag: '' }));
         const ds = dateShort(n.createdAt || Date.now());
-        const allLines = src.map(l => ({ text: l.text || '', tag: l.tag || '', date: l.date || ds }));
+        const allLines = src.map(l => ({ text: l.text || '', tag: l.tag || '', date: l.date || ds, done: !!l.done }));
 
         // Split into pages of LINES_PER_PAGE
         for (let i = 0; i < allLines.length; i += LINES_PER_PAGE) {
           const chunk = allLines.slice(i, i + LINES_PER_PAGE);
-          while (chunk.length < LINES_PER_PAGE) chunk.push({ text: '', tag: '', date: '' });
+          while (chunk.length < LINES_PER_PAGE) chunk.push({ text: '', tag: '', date: '', done: false });
           pages.push({
             id: (i === 0 ? n.id : genId()),
             lines: chunk,
@@ -663,6 +857,9 @@
         }
       });
     }
+
+    // Migrate: add done field
+    pages.forEach(p => p.lines.forEach(l => { if (l.done === undefined) l.done = false; }));
 
     if (pages.length === 0) pages = [emptyPage()];
     save();
@@ -765,6 +962,11 @@
       const row = document.createElement('div');
       row.className = 'line-row';
 
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.className = 'line-check';
+      check.checked = !!line.done;
+
       const dateIn = document.createElement('input');
       dateIn.type = 'text';
       dateIn.className = 'line-date';
@@ -779,11 +981,20 @@
 
       const textIn = document.createElement('input');
       textIn.type = 'text';
-      textIn.className = 'line-text';
+      textIn.className = 'line-text' + (line.done ? ' done' : '');
       textIn.value = line.text;
       if (i === 0 && !pg.lines.some(l => l.text)) textIn.placeholder = 'Schreibe hier...';
 
       // Events
+      check.addEventListener('change', () => {
+        pg.lines[i].done = check.checked;
+        textIn.classList.toggle('done', check.checked);
+        pg.updatedAt = Date.now();
+        save();
+        if (activeTab === 'todos') renderTodoList();
+        renderPageList();
+      });
+
       dateIn.addEventListener('input', () => {
         pg.lines[i].date = dateIn.value;
         pg.updatedAt = Date.now();
@@ -799,6 +1010,7 @@
         pg.updatedAt = Date.now();
         scheduleSave();
         renderPageList();
+        if (activeTab === 'todos') renderTodoList();
       });
 
       textIn.addEventListener('keydown', (e) => {
@@ -807,7 +1019,6 @@
           if (i < LINES_PER_PAGE - 1) {
             focusLine(i + 1);
           } else {
-            // Last line → next page
             if (curPage < pages.length - 1) {
               goTo(curPage + 1, 'right');
               setTimeout(() => focusLine(0), 250);
@@ -847,6 +1058,7 @@
         openTagDd(i, tagBtn);
       });
 
+      row.appendChild(check);
       row.appendChild(dateIn);
       row.appendChild(tagBtn);
       row.appendChild(textIn);
@@ -986,6 +1198,148 @@
   document.addEventListener('click', (e) => {
     if (!tagDd.contains(e.target) && !e.target.classList.contains('line-tag-btn')) closeTagDd();
   });
+
+  // --- Tabs ---
+  function switchTab(tab) {
+    activeTab = tab;
+    tabPages.classList.toggle('active', tab === 'pages');
+    tabTodos.classList.toggle('active', tab === 'todos');
+    pageList.style.display = tab === 'pages' ? '' : 'none';
+    document.getElementById('pgCount').style.display = tab === 'pages' ? '' : 'none';
+    todoSection.classList.toggle('visible', tab === 'todos');
+    if (tab === 'todos') {
+      renderTodoFilters();
+      renderTodoTagFilters();
+      renderTodoList();
+    }
+  }
+
+  tabPages.addEventListener('click', () => switchTab('pages'));
+  tabTodos.addEventListener('click', () => switchTab('todos'));
+
+  // --- ToDo overview ---
+  function collectTodos() {
+    const items = [];
+    pages.forEach((p, pi) => {
+      p.lines.forEach((l, li) => {
+        if (l.text.trim()) {
+          items.push({ text: l.text, tag: l.tag, date: l.date, done: !!l.done, pageIdx: pi, lineIdx: li });
+        }
+      });
+    });
+    return items;
+  }
+
+  function getFilteredTodos() {
+    let items = collectTodos();
+    if (todoFilter === 'open') items = items.filter(t => !t.done);
+    else if (todoFilter === 'done') items = items.filter(t => t.done);
+    if (todoTagFilter) items = items.filter(t => t.tag === todoTagFilter);
+    return items;
+  }
+
+  function getTodoCounts() {
+    const all = collectTodos();
+    return { open: all.filter(t => !t.done).length, done: all.filter(t => t.done).length, all: all.length };
+  }
+
+  function getTodoTags() {
+    const m = {};
+    collectTodos().forEach(t => { if (t.tag) m[t.tag] = (m[t.tag] || 0) + 1; });
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }
+
+  function renderTodoFilters() {
+    const c = getTodoCounts();
+    const filters = [
+      { key: 'open', label: 'Offen', count: c.open },
+      { key: 'done', label: 'Erledigt', count: c.done },
+      { key: 'all', label: 'Alle', count: c.all }
+    ];
+    todoFilters.innerHTML = filters.map(f =>
+      `<span class="todo-filter ${todoFilter === f.key ? 'active' : ''}" data-f="${f.key}">${f.label}<span class="tf-count">${f.count}</span></span>`
+    ).join('');
+    todoFilters.querySelectorAll('.todo-filter').forEach(el => {
+      el.addEventListener('click', () => {
+        todoFilter = el.dataset.f;
+        renderTodoFilters();
+        renderTodoList();
+      });
+    });
+  }
+
+  function renderTodoTagFilters() {
+    const tags = getTodoTags();
+    if (!tags.length) { todoTagFilters.style.display = 'none'; return; }
+    todoTagFilters.style.display = 'flex';
+    let h = `<span class="todo-tag-chip ${!todoTagFilter ? 'active' : ''}" data-t="">Alle Tags</span>`;
+    tags.forEach(([t, c]) => {
+      h += `<span class="todo-tag-chip ${todoTagFilter === t ? 'active' : ''}" data-t="${esc(t)}">${esc(t)} ${c}</span>`;
+    });
+    todoTagFilters.innerHTML = h;
+    todoTagFilters.querySelectorAll('.todo-tag-chip').forEach(el => {
+      el.addEventListener('click', () => {
+        todoTagFilter = el.dataset.t || null;
+        renderTodoTagFilters();
+        renderTodoList();
+      });
+    });
+  }
+
+  function renderTodoList() {
+    const items = getFilteredTodos();
+    if (!items.length) {
+      todoList.innerHTML = '<div style="padding:16px;text-align:center;color:#aaa;font-size:11px;">Keine Eintraege</div>';
+    } else {
+      todoList.innerHTML = items.map((t, idx) => {
+        const tagH = t.tag ? `<span class="todo-item-tag">${esc(t.tag)}</span>` : '';
+        return `<div class="todo-item" data-idx="${idx}">
+          <input type="checkbox" class="todo-item-check" ${t.done ? 'checked' : ''} data-pi="${t.pageIdx}" data-li="${t.lineIdx}">
+          <div class="todo-item-content">
+            <div class="todo-item-text ${t.done ? 'done' : ''}">${esc(t.text)}</div>
+            <div class="todo-item-meta">${t.date || ''} ${tagH} <span class="todo-item-page" data-pi="${t.pageIdx}">S.${t.pageIdx + 1}</span></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    todoCount.textContent = items.length + ' Eintraege';
+
+    // Events: toggle checkbox
+    todoList.querySelectorAll('.todo-item-check').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        e.stopPropagation();
+        const pi = +cb.dataset.pi, li = +cb.dataset.li;
+        pages[pi].lines[li].done = cb.checked;
+        pages[pi].updatedAt = Date.now();
+        save();
+        renderTodoFilters();
+        renderTodoList();
+        if (pi === curPage) renderPage();
+      });
+    });
+
+    // Events: click page link → navigate
+    todoList.querySelectorAll('.todo-item-page').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const pi = +el.dataset.pi;
+        goTo(pi, pi > curPage ? 'right' : 'left');
+        closeSidebar();
+      });
+    });
+
+    // Events: click todo item → navigate to page
+    todoList.querySelectorAll('.todo-item').forEach(el => {
+      el.addEventListener('click', (e) => {
+        if (e.target.classList.contains('todo-item-check')) return;
+        const cb = el.querySelector('.todo-item-check');
+        const pi = +cb.dataset.pi, li = +cb.dataset.li;
+        goTo(pi, pi > curPage ? 'right' : 'left');
+        closeSidebar();
+        setTimeout(() => focusLine(li), 300);
+      });
+    });
+  }
 
   // --- Events ---
   newPageBtn.addEventListener('click', () => { addPage(); closeSidebar(); });
