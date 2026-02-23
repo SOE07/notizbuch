@@ -273,56 +273,9 @@
   .editor-toolbar label {
     font-size: 12px;
     color: var(--ink-light);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     white-space: nowrap;
-  }
-
-  .tag-input {
-    flex: 1;
-    padding: 6px 10px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    font-size: 13px;
-    background: white;
-    color: var(--ink);
-    outline: none;
-  }
-
-  .tag-input:focus {
-    border-color: var(--tag-active);
-  }
-
-  .tag-input::placeholder {
-    color: #bbb;
-  }
-
-  .editor-tags-display {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-  }
-
-  .editor-tag {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    border-radius: 6px;
-    background: var(--tag-active);
-    color: white;
-    font-size: 12px;
-    gap: 4px;
-  }
-
-  .editor-tag .remove-tag {
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
-    opacity: 0.8;
-  }
-
-  .editor-tag .remove-tag:hover {
-    opacity: 1;
+    font-style: italic;
   }
 
   .delete-note-btn {
@@ -388,18 +341,10 @@
     color: #ccc;
   }
 
-  .note-textarea {
-    width: 100%;
+  /* Lines editor */
+  .lines-editor {
+    padding: 8px 16px 32px 88px;
     min-height: calc(100vh - 200px);
-    padding: 8px 32px 32px 88px;
-    border: none;
-    background: transparent;
-    font-family: 'Caveat', cursive;
-    font-size: 20px;
-    color: var(--ink);
-    outline: none;
-    resize: none;
-    line-height: 40px;
     background-image: repeating-linear-gradient(
       transparent,
       transparent 39px,
@@ -409,8 +354,148 @@
     background-position-y: 0;
   }
 
-  .note-textarea::placeholder {
+  .line-row {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    position: relative;
+    gap: 4px;
+  }
+
+  .line-text {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--ink);
+    outline: none;
+    line-height: 40px;
+    height: 40px;
+    padding: 0;
+    min-width: 0;
+  }
+
+  .line-text::placeholder {
     color: #ccc;
+  }
+
+  .line-tag-btn {
+    padding: 2px 8px;
+    font-size: 11px;
+    border-radius: 8px;
+    border: 1px dashed var(--line);
+    background: transparent;
+    color: var(--ink-light);
+    cursor: pointer;
+    white-space: nowrap;
+    min-width: 24px;
+    text-align: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.4;
+  }
+
+  .line-tag-btn:hover {
+    border-color: var(--tag-active);
+    color: var(--tag-active);
+    background: var(--tag-bg);
+  }
+
+  .line-tag-btn.has-tag {
+    background: var(--tag-active);
+    border: 1px solid var(--tag-active);
+    color: white;
+    font-weight: 500;
+  }
+
+  .line-tag-btn.has-tag:hover {
+    background: #2980b9;
+    color: white;
+  }
+
+  /* Tag dropdown */
+  .tag-dropdown {
+    position: fixed;
+    z-index: 200;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    min-width: 200px;
+    max-width: 260px;
+    display: none;
+    overflow: hidden;
+  }
+
+  .tag-dropdown.open {
+    display: block;
+  }
+
+  .tag-dropdown-search {
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-bottom: 1px solid var(--paper-dark);
+    font-size: 13px;
+    outline: none;
+    color: var(--ink);
+    background: var(--paper);
+  }
+
+  .tag-dropdown-search::placeholder {
+    color: #bbb;
+  }
+
+  .tag-dropdown-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+
+  .tag-suggestion {
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tag-suggestion:hover {
+    background: var(--tag-bg);
+  }
+
+  .tag-suggestion.active {
+    background: var(--tag-bg);
+  }
+
+  .tag-suggestion.create {
+    color: var(--tag-active);
+    font-weight: 500;
+    border-bottom: 1px solid var(--paper-dark);
+  }
+
+  .tag-suggestion.remove {
+    color: var(--accent);
+    border-top: 1px solid var(--paper-dark);
+  }
+
+  .tag-suggestion-empty {
+    padding: 12px;
+    font-size: 12px;
+    color: var(--ink-light);
+    text-align: center;
+  }
+
+  .tag-suggestion-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tag-active);
+    flex-shrink: 0;
   }
 
   /* Note count */
@@ -469,7 +554,7 @@
       padding-left: 40px;
     }
 
-    .note-textarea {
+    .lines-editor {
       padding-left: 40px;
     }
 
@@ -562,16 +647,19 @@
   <div class="editor-container" id="editorContainer" style="display:none">
     <div class="editor-toolbar">
       <div class="tag-input-wrapper">
-        <label>Tags:</label>
-        <div class="editor-tags-display" id="editorTags"></div>
-        <input type="text" class="tag-input" id="tagInput" placeholder="Tag + Enter" autocomplete="off">
+        <label>Tipp: Klicke rechts neben einer Zeile auf den Tag-Button</label>
       </div>
       <button class="delete-note-btn" id="deleteNoteBtn">Loschen</button>
     </div>
 
     <div class="notebook-page">
       <input type="text" class="title-input" id="titleInput" placeholder="Titel...">
-      <textarea class="note-textarea" id="noteTextarea" placeholder="Schreibe hier..."></textarea>
+      <div class="lines-editor" id="linesEditor"></div>
+    </div>
+
+    <div class="tag-dropdown" id="tagDropdown">
+      <input type="text" class="tag-dropdown-search" id="tagDropdownSearch" placeholder="Tag eingeben..." autocomplete="off">
+      <div class="tag-dropdown-list" id="tagDropdownList"></div>
     </div>
   </div>
 </main>
@@ -586,6 +674,17 @@
   let activeTagFilter = null;
   let searchQuery = '';
   let saveTimeout = null;
+  let activeDropdownLineIndex = null;
+  let dropdownHighlightIndex = -1;
+
+  // --- Migrate old notes (content string → lines array) ---
+  notes.forEach(n => {
+    if (!n.lines) {
+      const text = n.content || '';
+      n.lines = text ? text.split('\n').map(t => ({ text: t, tag: '' })) : [{ text: '', tag: '' }];
+    }
+  });
+  localStorage.setItem('notizbuch_notes', JSON.stringify(notes));
 
   // --- Elements ---
   const sidebar = document.getElementById('sidebar');
@@ -599,10 +698,11 @@
   const editorEmpty = document.getElementById('editorEmpty');
   const editorContainer = document.getElementById('editorContainer');
   const titleInput = document.getElementById('titleInput');
-  const noteTextarea = document.getElementById('noteTextarea');
-  const tagInput = document.getElementById('tagInput');
-  const editorTags = document.getElementById('editorTags');
+  const linesEditor = document.getElementById('linesEditor');
   const deleteNoteBtn = document.getElementById('deleteNoteBtn');
+  const tagDropdown = document.getElementById('tagDropdown');
+  const tagDropdownSearch = document.getElementById('tagDropdownSearch');
+  const tagDropdownList = document.getElementById('tagDropdownList');
 
   // --- Helpers ---
   function generateId() {
@@ -624,6 +724,11 @@
       + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
   }
 
+  function syncNoteFromLines(note) {
+    note.content = note.lines.map(l => l.text).join('\n');
+    note.tags = [...new Set(note.lines.map(l => l.tag).filter(Boolean))];
+  }
+
   function getAllTags() {
     const tagMap = {};
     notes.forEach(n => {
@@ -632,6 +737,16 @@
       });
     });
     return Object.entries(tagMap).sort((a, b) => b[1] - a[1]);
+  }
+
+  function getAllLineTags() {
+    const tags = new Set();
+    notes.forEach(n => {
+      (n.lines || []).forEach(l => {
+        if (l.tag) tags.add(l.tag);
+      });
+    });
+    return [...tags].sort();
   }
 
   function getFilteredNotes() {
@@ -651,6 +766,12 @@
     }
 
     return filtered.sort((a, b) => b.updatedAt - a.updatedAt);
+  }
+
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
   }
 
   // --- Render ---
@@ -702,25 +823,228 @@
     });
   }
 
-  function renderEditorTags() {
+  // --- Lines Editor ---
+  function renderLines() {
     const note = notes.find(n => n.id === activeNoteId);
     if (!note) return;
-    editorTags.innerHTML = (note.tags || []).map(t =>
-      `<span class="editor-tag">${esc(t)}<span class="remove-tag" data-tag="${esc(t)}">&times;</span></span>`
-    ).join('');
+    if (!note.lines || note.lines.length === 0) {
+      note.lines = [{ text: '', tag: '' }];
+    }
 
-    editorTags.querySelectorAll('.remove-tag').forEach(btn => {
-      btn.addEventListener('click', () => {
-        removeTagFromNote(btn.dataset.tag);
+    linesEditor.innerHTML = '';
+    note.lines.forEach((line, i) => {
+      const row = document.createElement('div');
+      row.className = 'line-row';
+      row.dataset.index = i;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'line-text';
+      input.value = line.text;
+      if (i === 0 && note.lines.length === 1 && !line.text) {
+        input.placeholder = 'Schreibe hier...';
+      }
+
+      const tagBtn = document.createElement('button');
+      tagBtn.type = 'button';
+      tagBtn.className = 'line-tag-btn' + (line.tag ? ' has-tag' : '');
+      tagBtn.textContent = line.tag || '#';
+      tagBtn.title = line.tag ? 'Tag: ' + line.tag : 'Tag hinzufuegen';
+
+      // --- Line text events ---
+      input.addEventListener('input', () => {
+        note.lines[i].text = input.value;
+        syncNoteFromLines(note);
+        note.updatedAt = Date.now();
+        scheduleSave();
+        renderNotesList();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const pos = input.selectionStart;
+          const before = input.value.slice(0, pos);
+          const after = input.value.slice(pos);
+          note.lines[i].text = before;
+          note.lines.splice(i + 1, 0, { text: after, tag: '' });
+          syncNoteFromLines(note);
+          note.updatedAt = Date.now();
+          save();
+          renderLines();
+          focusLine(i + 1, 0);
+          renderNotesList();
+        } else if (e.key === 'Backspace' && input.selectionStart === 0 && input.selectionEnd === 0 && i > 0) {
+          e.preventDefault();
+          const prevLen = note.lines[i - 1].text.length;
+          note.lines[i - 1].text += note.lines[i].text;
+          note.lines.splice(i, 1);
+          syncNoteFromLines(note);
+          note.updatedAt = Date.now();
+          save();
+          renderLines();
+          focusLine(i - 1, prevLen);
+          renderTagFilters();
+          renderNotesList();
+        } else if (e.key === 'ArrowUp' && i > 0) {
+          e.preventDefault();
+          focusLine(i - 1, Math.min(input.selectionStart, note.lines[i - 1].text.length));
+        } else if (e.key === 'ArrowDown' && i < note.lines.length - 1) {
+          e.preventDefault();
+          focusLine(i + 1, Math.min(input.selectionStart, note.lines[i + 1].text.length));
+        }
+      });
+
+      // --- Tag button event ---
+      tagBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openTagDropdown(i, tagBtn);
+      });
+
+      row.appendChild(input);
+      row.appendChild(tagBtn);
+      linesEditor.appendChild(row);
+    });
+  }
+
+  function focusLine(index, cursorPos) {
+    requestAnimationFrame(() => {
+      const rows = linesEditor.querySelectorAll('.line-row');
+      if (rows[index]) {
+        const input = rows[index].querySelector('.line-text');
+        input.focus();
+        if (typeof cursorPos === 'number') {
+          input.setSelectionRange(cursorPos, cursorPos);
+        }
+      }
+    });
+  }
+
+  // --- Tag Dropdown ---
+  function openTagDropdown(lineIndex, btnElement) {
+    activeDropdownLineIndex = lineIndex;
+    dropdownHighlightIndex = -1;
+
+    const rect = btnElement.getBoundingClientRect();
+    tagDropdown.style.top = rect.bottom + 4 + 'px';
+    tagDropdown.style.left = '';
+    tagDropdown.style.right = '';
+
+    // Position: try to align right edge with button right edge
+    const dropdownWidth = 220;
+    const rightEdge = rect.right;
+    if (rightEdge - dropdownWidth < 0) {
+      tagDropdown.style.left = Math.max(4, rect.left) + 'px';
+    } else {
+      tagDropdown.style.left = (rightEdge - dropdownWidth) + 'px';
+    }
+
+    tagDropdown.classList.add('open');
+    tagDropdownSearch.value = '';
+    tagDropdownSearch.focus();
+    renderTagSuggestions('');
+  }
+
+  function closeTagDropdown() {
+    tagDropdown.classList.remove('open');
+    activeDropdownLineIndex = null;
+    dropdownHighlightIndex = -1;
+  }
+
+  function renderTagSuggestions(query) {
+    const allTags = getAllLineTags();
+    const q = query.trim().toLowerCase();
+    const filtered = q ? allTags.filter(t => t.includes(q)) : allTags;
+
+    let html = '';
+
+    // "Create new" option if query doesn't match existing
+    if (q && !allTags.includes(q)) {
+      html += `<div class="tag-suggestion create" data-tag="${esc(q)}" data-idx="0"><span class="tag-suggestion-dot"></span> "${esc(query.trim())}" erstellen</div>`;
+    }
+
+    filtered.forEach((tag, i) => {
+      const idx = (q && !allTags.includes(q)) ? i + 1 : i;
+      html += `<div class="tag-suggestion" data-tag="${esc(tag)}" data-idx="${idx}"><span class="tag-suggestion-dot"></span> ${esc(tag)}</div>`;
+    });
+
+    // "Remove tag" option if line has a tag
+    const note = notes.find(n => n.id === activeNoteId);
+    if (note && note.lines[activeDropdownLineIndex] && note.lines[activeDropdownLineIndex].tag) {
+      html += `<div class="tag-suggestion remove" data-tag="" data-idx="${filtered.length + ((q && !allTags.includes(q)) ? 1 : 0)}">Tag entfernen</div>`;
+    }
+
+    if (!html) {
+      html = '<div class="tag-suggestion-empty">Tippe einen Tag-Namen...</div>';
+    }
+
+    tagDropdownList.innerHTML = html;
+
+    tagDropdownList.querySelectorAll('.tag-suggestion[data-tag]').forEach(item => {
+      item.addEventListener('click', () => {
+        selectTagForLine(item.dataset.tag);
       });
     });
   }
 
-  function esc(str) {
-    const d = document.createElement('div');
-    d.textContent = str;
-    return d.innerHTML;
+  function selectTagForLine(tag) {
+    const note = notes.find(n => n.id === activeNoteId);
+    if (!note || activeDropdownLineIndex === null) return;
+    note.lines[activeDropdownLineIndex].tag = tag ? tag.trim().toLowerCase() : '';
+    syncNoteFromLines(note);
+    note.updatedAt = Date.now();
+    save();
+    renderLines();
+    renderTagFilters();
+    renderNotesList();
+    closeTagDropdown();
   }
+
+  // Dropdown search input events
+  tagDropdownSearch.addEventListener('input', () => {
+    dropdownHighlightIndex = -1;
+    renderTagSuggestions(tagDropdownSearch.value);
+  });
+
+  tagDropdownSearch.addEventListener('keydown', (e) => {
+    const items = tagDropdownList.querySelectorAll('.tag-suggestion[data-tag]');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      dropdownHighlightIndex = Math.min(dropdownHighlightIndex + 1, items.length - 1);
+      updateDropdownHighlight(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      dropdownHighlightIndex = Math.max(dropdownHighlightIndex - 1, 0);
+      updateDropdownHighlight(items);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (dropdownHighlightIndex >= 0 && items[dropdownHighlightIndex]) {
+        selectTagForLine(items[dropdownHighlightIndex].dataset.tag);
+      } else {
+        // Create/assign the typed tag
+        const val = tagDropdownSearch.value.trim().toLowerCase();
+        if (val) selectTagForLine(val);
+      }
+    } else if (e.key === 'Escape') {
+      closeTagDropdown();
+    }
+  });
+
+  function updateDropdownHighlight(items) {
+    items.forEach((item, i) => {
+      item.classList.toggle('active', i === dropdownHighlightIndex);
+    });
+    if (items[dropdownHighlightIndex]) {
+      items[dropdownHighlightIndex].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!tagDropdown.contains(e.target) && !e.target.classList.contains('line-tag-btn')) {
+      closeTagDropdown();
+    }
+  });
 
   // --- Actions ---
   function createNote() {
@@ -729,6 +1053,7 @@
       title: '',
       content: '',
       tags: [],
+      lines: [{ text: '', tag: '' }],
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
@@ -746,20 +1071,26 @@
     const note = notes.find(n => n.id === id);
     if (!note) return;
 
+    // Ensure lines exist
+    if (!note.lines || note.lines.length === 0) {
+      const text = note.content || '';
+      note.lines = text ? text.split('\n').map(t => ({ text: t, tag: '' })) : [{ text: '', tag: '' }];
+    }
+
     editorEmpty.style.display = 'none';
     editorContainer.style.display = 'flex';
 
     titleInput.value = note.title || '';
-    noteTextarea.value = note.content || '';
-    renderEditorTags();
+    closeTagDropdown();
+    renderLines();
     renderNotesList();
-    autoResize();
   }
 
   function closeEditor() {
     activeNoteId = null;
     editorEmpty.style.display = 'flex';
     editorContainer.style.display = 'none';
+    closeTagDropdown();
     renderNotesList();
   }
 
@@ -773,38 +1104,6 @@
     closeEditor();
     renderTagFilters();
     renderNotesList();
-  }
-
-  function addTagToNote(tag) {
-    const note = notes.find(n => n.id === activeNoteId);
-    if (!note) return;
-    const clean = tag.trim().toLowerCase();
-    if (!clean) return;
-    if (!note.tags.includes(clean)) {
-      note.tags.push(clean);
-      note.updatedAt = Date.now();
-      save();
-      renderEditorTags();
-      renderTagFilters();
-      renderNotesList();
-    }
-  }
-
-  function removeTagFromNote(tag) {
-    const note = notes.find(n => n.id === activeNoteId);
-    if (!note) return;
-    note.tags = note.tags.filter(t => t !== tag);
-    note.updatedAt = Date.now();
-    save();
-    renderEditorTags();
-    renderTagFilters();
-    renderNotesList();
-  }
-
-  function autoResize() {
-    noteTextarea.style.height = 'auto';
-    const minH = window.innerHeight - 200;
-    noteTextarea.style.height = Math.max(noteTextarea.scrollHeight, minH) + 'px';
   }
 
   function closeSidebarMobile() {
@@ -825,21 +1124,10 @@
     renderNotesList();
   });
 
-  noteTextarea.addEventListener('input', () => {
-    const note = notes.find(n => n.id === activeNoteId);
-    if (!note) return;
-    note.content = noteTextarea.value;
-    note.updatedAt = Date.now();
-    scheduleSave();
-    autoResize();
-    renderNotesList();
-  });
-
-  tagInput.addEventListener('keydown', (e) => {
+  titleInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      addTagToNote(tagInput.value);
-      tagInput.value = '';
+      focusLine(0, 0);
     }
   });
 
@@ -888,6 +1176,11 @@
         let added = 0;
         imported.forEach(n => {
           if (n.id && !existingIds.has(n.id)) {
+            // Migrate imported notes too
+            if (!n.lines) {
+              const text = n.content || '';
+              n.lines = text ? text.split('\n').map(t => ({ text: t, tag: '' })) : [{ text: '', tag: '' }];
+            }
             notes.push(n);
             existingIds.add(n.id);
             added++;
