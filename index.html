@@ -309,20 +309,36 @@
     gap: 2px;
   }
 
-  /* Checkbox */
-  .line-check {
-    width: 16px;
-    height: 16px;
+  /* ToDo toggle button (3 states: none → open → done → none) */
+  .line-todo {
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
     cursor: pointer;
-    accent-color: var(--tag-active);
-    margin: 0 1px;
-    opacity: 0.4;
-    transition: opacity 0.15s;
+    border: none;
+    background: transparent;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    transition: all 0.15s;
+    font-size: 15px;
+    line-height: 1;
+    color: #ccc5b5;
   }
 
-  .line-check:hover { opacity: 0.8; }
-  .line-check:checked { opacity: 1; }
+  .line-todo:hover { color: var(--ink-light); }
+
+  .line-todo.is-todo {
+    color: var(--tag-active);
+    opacity: 0.85;
+  }
+
+  .line-todo.is-done {
+    color: var(--tag-active);
+    opacity: 1;
+  }
 
   .line-text.done {
     text-decoration: line-through;
@@ -422,12 +438,21 @@
   .todo-item:hover { background: #e8e2d5; }
 
   .todo-item-check {
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
     cursor: pointer;
-    accent-color: var(--tag-active);
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: var(--tag-active);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+
+  .todo-item-check:hover { opacity: 0.7; }
 
   .todo-item-content {
     flex: 1;
@@ -658,7 +683,7 @@
     .notebook-area { padding: 8px 44px; }
 
     .paper::before { left: 100px; }
-    .line-check { width: 14px; height: 14px; }
+    .line-todo { width: 16px; height: 16px; font-size: 13px; }
     .line-date { width: 38px; font-size: 11px; }
     .line-tag-btn { width: 40px; font-size: 8px; }
     .line-text { font-size: 16px; }
@@ -673,7 +698,7 @@
     .line-date { width: 34px; font-size: 10px; }
     .line-tag-btn { width: 36px; font-size: 7px; }
     .paper::before { left: 88px; }
-    .line-check { width: 13px; height: 13px; }
+    .line-todo { width: 14px; height: 14px; font-size: 11px; }
   }
 
   /* Scrollbar */
@@ -821,7 +846,7 @@
 
   function emptyPage() {
     const lines = [];
-    for (let i = 0; i < LINES_PER_PAGE; i++) lines.push({ text: '', tag: '', date: '', done: false });
+    for (let i = 0; i < LINES_PER_PAGE; i++) lines.push({ text: '', tag: '', date: '', todo: false, done: false });
     return { id: genId(), lines, createdAt: Date.now(), updatedAt: Date.now() };
   }
 
@@ -842,12 +867,12 @@
       oldNotes.forEach(n => {
         const src = n.lines || (n.content || '').split('\n').map(t => ({ text: t, tag: '' }));
         const ds = dateShort(n.createdAt || Date.now());
-        const allLines = src.map(l => ({ text: l.text || '', tag: l.tag || '', date: l.date || ds, done: !!l.done }));
+        const allLines = src.map(l => ({ text: l.text || '', tag: l.tag || '', date: l.date || ds, todo: !!l.done, done: !!l.done }));
 
         // Split into pages of LINES_PER_PAGE
         for (let i = 0; i < allLines.length; i += LINES_PER_PAGE) {
           const chunk = allLines.slice(i, i + LINES_PER_PAGE);
-          while (chunk.length < LINES_PER_PAGE) chunk.push({ text: '', tag: '', date: '', done: false });
+          while (chunk.length < LINES_PER_PAGE) chunk.push({ text: '', tag: '', date: '', todo: false, done: false });
           pages.push({
             id: (i === 0 ? n.id : genId()),
             lines: chunk,
@@ -858,8 +883,11 @@
       });
     }
 
-    // Migrate: add done field
-    pages.forEach(p => p.lines.forEach(l => { if (l.done === undefined) l.done = false; }));
+    // Migrate: add todo + done fields
+    pages.forEach(p => p.lines.forEach(l => {
+      if (l.todo === undefined) l.todo = !!l.done; // old checked lines become todos
+      if (l.done === undefined) l.done = false;
+    }));
 
     if (pages.length === 0) pages = [emptyPage()];
     save();
@@ -962,10 +990,11 @@
       const row = document.createElement('div');
       row.className = 'line-row';
 
-      const check = document.createElement('input');
-      check.type = 'checkbox';
-      check.className = 'line-check';
-      check.checked = !!line.done;
+      const todoBtn = document.createElement('button');
+      todoBtn.type = 'button';
+      todoBtn.className = 'line-todo' + (line.todo ? (line.done ? ' is-done' : ' is-todo') : '');
+      todoBtn.innerHTML = line.todo ? (line.done ? '&#9745;' : '&#9744;') : '&#183;';
+      todoBtn.title = line.todo ? (line.done ? 'Erledigt (klick: zuruecksetzen)' : 'Offen (klick: abhaken)') : 'Klick: als ToDo markieren';
 
       const dateIn = document.createElement('input');
       dateIn.type = 'text';
@@ -981,17 +1010,27 @@
 
       const textIn = document.createElement('input');
       textIn.type = 'text';
-      textIn.className = 'line-text' + (line.done ? ' done' : '');
+      textIn.className = 'line-text' + (line.todo && line.done ? ' done' : '');
       textIn.value = line.text;
       if (i === 0 && !pg.lines.some(l => l.text)) textIn.placeholder = 'Schreibe hier...';
 
-      // Events
-      check.addEventListener('change', () => {
-        pg.lines[i].done = check.checked;
-        textIn.classList.toggle('done', check.checked);
+      // Events: 3-state cycle (none → todo → done → none)
+      todoBtn.addEventListener('click', () => {
+        const l = pg.lines[i];
+        if (!l.todo) {
+          l.todo = true; l.done = false;
+        } else if (!l.done) {
+          l.done = true;
+        } else {
+          l.todo = false; l.done = false;
+        }
+        todoBtn.className = 'line-todo' + (l.todo ? (l.done ? ' is-done' : ' is-todo') : '');
+        todoBtn.innerHTML = l.todo ? (l.done ? '&#9745;' : '&#9744;') : '&#183;';
+        todoBtn.title = l.todo ? (l.done ? 'Erledigt (klick: zuruecksetzen)' : 'Offen (klick: abhaken)') : 'Klick: als ToDo markieren';
+        textIn.classList.toggle('done', l.todo && l.done);
         pg.updatedAt = Date.now();
         save();
-        if (activeTab === 'todos') renderTodoList();
+        if (activeTab === 'todos') { renderTodoFilters(); renderTodoList(); }
         renderPageList();
       });
 
@@ -1058,7 +1097,7 @@
         openTagDd(i, tagBtn);
       });
 
-      row.appendChild(check);
+      row.appendChild(todoBtn);
       row.appendChild(dateIn);
       row.appendChild(tagBtn);
       row.appendChild(textIn);
@@ -1222,8 +1261,8 @@
     const items = [];
     pages.forEach((p, pi) => {
       p.lines.forEach((l, li) => {
-        if (l.text.trim()) {
-          items.push({ text: l.text, tag: l.tag, date: l.date, done: !!l.done, pageIdx: pi, lineIdx: li });
+        if (l.todo) {
+          items.push({ text: l.text || '(leer)', tag: l.tag, date: l.date, done: !!l.done, pageIdx: pi, lineIdx: li });
         }
       });
     });
@@ -1293,8 +1332,9 @@
     } else {
       todoList.innerHTML = items.map((t, idx) => {
         const tagH = t.tag ? `<span class="todo-item-tag">${esc(t.tag)}</span>` : '';
+        const icon = t.done ? '&#9745;' : '&#9744;';
         return `<div class="todo-item" data-idx="${idx}">
-          <input type="checkbox" class="todo-item-check" ${t.done ? 'checked' : ''} data-pi="${t.pageIdx}" data-li="${t.lineIdx}">
+          <button class="todo-item-check ${t.done ? 'is-done' : ''}" data-pi="${t.pageIdx}" data-li="${t.lineIdx}">${icon}</button>
           <div class="todo-item-content">
             <div class="todo-item-text ${t.done ? 'done' : ''}">${esc(t.text)}</div>
             <div class="todo-item-meta">${t.date || ''} ${tagH} <span class="todo-item-page" data-pi="${t.pageIdx}">S.${t.pageIdx + 1}</span></div>
@@ -1304,12 +1344,12 @@
     }
     todoCount.textContent = items.length + ' Eintraege';
 
-    // Events: toggle checkbox
-    todoList.querySelectorAll('.todo-item-check').forEach(cb => {
-      cb.addEventListener('change', (e) => {
+    // Events: toggle done in todo list
+    todoList.querySelectorAll('.todo-item-check').forEach(btn => {
+      btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const pi = +cb.dataset.pi, li = +cb.dataset.li;
-        pages[pi].lines[li].done = cb.checked;
+        const pi = +btn.dataset.pi, li = +btn.dataset.li;
+        pages[pi].lines[li].done = !pages[pi].lines[li].done;
         pages[pi].updatedAt = Date.now();
         save();
         renderTodoFilters();
