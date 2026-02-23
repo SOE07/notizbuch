@@ -25,10 +25,7 @@
 
   body {
     font-family: 'Inter', sans-serif;
-    background: #c8c0b0;
-    background-image:
-      radial-gradient(ellipse at 30% 20%, #d5cfc0 0%, transparent 60%),
-      radial-gradient(ellipse at 70% 80%, #c0b8a8 0%, transparent 60%);
+    background: #000000;
     color: var(--ink);
     height: 100vh;
     overflow: hidden;
@@ -289,17 +286,26 @@
 
   .paper-del-btn:hover { opacity: 1; color: var(--accent); border-color: var(--accent); }
 
-  /* Lines area */
+  /* Lines area – checkered (Karo) pattern */
   .lines-area {
     flex: 1;
     padding: 0 12px 0 6px;
     position: relative;
-    background-image: repeating-linear-gradient(
-      transparent,
-      transparent calc(var(--line-h) - 1px),
-      var(--line-color) calc(var(--line-h) - 1px),
-      var(--line-color) var(--line-h)
-    );
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent calc(var(--line-h) - 1px),
+        var(--line-color) calc(var(--line-h) - 1px),
+        var(--line-color) var(--line-h)
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent calc(var(--line-h) - 1px),
+        var(--line-color) calc(var(--line-h) - 1px),
+        var(--line-color) var(--line-h)
+      );
   }
 
   .line-row {
