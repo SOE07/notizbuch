@@ -642,6 +642,115 @@
 
   .bold-btn:hover { opacity: 1; color: var(--ink); }
 
+  /* --- Page filter bar --- */
+  .page-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px 4px 6px;
+    border-bottom: 1px solid #e8e4dc;
+    background: #faf8f4;
+    flex-wrap: wrap;
+    min-height: 30px;
+  }
+
+  .page-filter-search {
+    width: 120px;
+    padding: 3px 7px 3px 22px;
+    border: 1px solid #d8d0c0;
+    border-radius: 5px;
+    background: white;
+    font-size: 11px;
+    color: var(--ink);
+    outline: none;
+    font-family: Arial, sans-serif;
+    position: relative;
+  }
+
+  .page-filter-search:focus { border-color: var(--tag-active); }
+
+  .page-filter-search-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .page-filter-search-wrap::before {
+    content: '\1F50D';
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    opacity: 0.35;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .page-filter-tags {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .page-tag-chip {
+    padding: 1px 6px;
+    border-radius: 6px;
+    background: var(--tag-bg);
+    color: var(--ink);
+    font-size: 9px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.12s;
+    user-select: none;
+  }
+
+  .page-tag-chip:hover { background: #d0e0f0; }
+  .page-tag-chip.active { background: var(--tag-active); color: white; }
+
+  .page-filter-toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    color: var(--ink-light);
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 6px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    transition: all 0.12s;
+    white-space: nowrap;
+  }
+
+  .page-filter-toggle:hover { background: #e8e2d5; }
+  .page-filter-toggle.active { background: var(--tag-active); color: white; border-color: var(--tag-active); }
+
+  .page-filter-toggle input[type="checkbox"] { display: none; }
+
+  .page-filter-icon {
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .line-row.filtered-out { display: none; }
+
+  .page-filter-bar .page-filter-clear {
+    background: none;
+    border: 1px solid #d8d0c0;
+    border-radius: 5px;
+    font-size: 9px;
+    color: var(--ink-light);
+    cursor: pointer;
+    padding: 2px 6px;
+    transition: all 0.12s;
+    display: none;
+  }
+
+  .page-filter-bar .page-filter-clear.visible { display: inline-block; }
+  .page-filter-bar .page-filter-clear:hover { color: var(--accent); border-color: var(--accent); }
+
   .paper-footer {
     padding: 6px 16px;
     text-align: center;
@@ -797,6 +906,9 @@
     .line-date { width: 38px; font-size: 11px; }
     .line-tag-btn { width: 40px; font-size: 8px; }
     .line-text { font-size: 16px; }
+    .page-filter-search { width: 90px; font-size: 10px; }
+    .page-filter-toggle { font-size: 8px; }
+    .page-tag-chip { font-size: 8px; }
 
     .page-arrow { width: 34px; height: 34px; font-size: 18px; }
     .page-arrow-left { left: 4px; }
@@ -876,6 +988,17 @@
         <button class="paper-del-btn" id="delPageBtn">Seite entfernen</button>
       </div>
     </div>
+    <div class="page-filter-bar" id="pageFilterBar">
+      <div class="page-filter-search-wrap">
+        <input type="text" class="page-filter-search" id="pageFilterSearch" placeholder="Zeilen filtern..." autocomplete="off">
+      </div>
+      <div class="page-filter-tags" id="pageFilterTags"></div>
+      <button class="page-filter-clear" id="pageFilterClear" title="Filter zuruecksetzen">&#10005; Reset</button>
+      <label class="page-filter-toggle" id="pageFilterHideDone" title="Erledigte ToDos ausblenden">
+        <input type="checkbox" id="hideDoneCheck">
+        <span class="page-filter-icon">&#9745;</span> Erledigte ausblenden
+      </label>
+    </div>
     <div class="lines-area" id="linesArea"></div>
     <div class="paper-footer" id="pageFooter">Seite 1 von 1</div>
   </div>
@@ -897,7 +1020,7 @@
 <script>
 (function() {
   const APP_VERSION = 'v1.0.0';
-  const BUILD_DATE = '24.02.2026 – 12:00';
+  const BUILD_DATE = '24.02.2026 – 14:00';
   const LINES_PER_PAGE = 18;
 
   // --- State ---
@@ -911,6 +1034,9 @@
   let activeTab = 'pages'; // 'pages' or 'todos'
   let todoFilter = 'open'; // 'open', 'done', 'all'
   let todoTagFilter = null;
+  let pageLineSearch = '';
+  let pageLineTagFilter = null;
+  let hideDoneTodos = false;
 
   // --- Elements ---
   const sidebar = document.getElementById('sidebar');
@@ -941,6 +1067,11 @@
   const todoCount = document.getElementById('todoCount');
   const fileSyncBtn = document.getElementById('fileSyncBtn');
   const fileStatus = document.getElementById('fileStatus');
+  const pageFilterSearch = document.getElementById('pageFilterSearch');
+  const pageFilterTags = document.getElementById('pageFilterTags');
+  const pageFilterClear = document.getElementById('pageFilterClear');
+  const hideDoneCheck = document.getElementById('hideDoneCheck');
+  const pageFilterHideDone = document.getElementById('pageFilterHideDone');
 
   // --- File System Access API ---
   let fileHandle = null;
@@ -1246,6 +1377,76 @@
     });
   }
 
+  // --- Page line filter ---
+  function renderPageFilterTags() {
+    const pg = pages[curPage];
+    if (!pg) return;
+    const tags = [...new Set(pg.lines.map(l => l.tag).filter(Boolean))].sort();
+    if (!tags.length) {
+      pageFilterTags.innerHTML = '';
+      return;
+    }
+    let h = `<span class="page-tag-chip ${!pageLineTagFilter ? 'active' : ''}" data-t="">Alle</span>`;
+    tags.forEach(t => {
+      const col = tagColor(t);
+      const style = pageLineTagFilter === t ? '' : `style="background:${col.bg};color:${col.text}"`;
+      h += `<span class="page-tag-chip ${pageLineTagFilter === t ? 'active' : ''}" data-t="${esc(t)}" ${style}>${esc(t)}</span>`;
+    });
+    pageFilterTags.innerHTML = h;
+    pageFilterTags.querySelectorAll('.page-tag-chip').forEach(el => {
+      el.addEventListener('click', () => {
+        pageLineTagFilter = el.dataset.t || null;
+        renderPageFilterTags();
+        applyLineFilters();
+      });
+    });
+  }
+
+  function applyLineFilters() {
+    const pg = pages[curPage];
+    if (!pg) return;
+    const rows = linesArea.querySelectorAll('.line-row');
+    const q = pageLineSearch.trim().toLowerCase();
+    const hasFilter = q || pageLineTagFilter || hideDoneTodos;
+    pageFilterClear.classList.toggle('visible', hasFilter);
+
+    rows.forEach((row, i) => {
+      const line = pg.lines[i];
+      if (!line) return;
+      let visible = true;
+
+      // Hide done todos
+      if (hideDoneTodos && line.todo && line.done) {
+        visible = false;
+      }
+
+      // Tag filter
+      if (visible && pageLineTagFilter) {
+        if (line.tag !== pageLineTagFilter) visible = false;
+      }
+
+      // Search filter (text + tag)
+      if (visible && q) {
+        const text = stripHtml(line.text).toLowerCase();
+        const tag = (line.tag || '').toLowerCase();
+        if (!text.includes(q) && !tag.includes(q)) visible = false;
+      }
+
+      row.classList.toggle('filtered-out', !visible);
+    });
+  }
+
+  function resetPageFilters() {
+    pageLineSearch = '';
+    pageLineTagFilter = null;
+    hideDoneTodos = false;
+    pageFilterSearch.value = '';
+    hideDoneCheck.checked = false;
+    pageFilterHideDone.classList.remove('active');
+    renderPageFilterTags();
+    applyLineFilters();
+  }
+
   // --- Render paper ---
   function renderPage(dir) {
     const pg = pages[curPage];
@@ -1420,6 +1621,8 @@
       linesArea.appendChild(row);
     });
 
+    renderPageFilterTags();
+    applyLineFilters();
     renderPageList();
   }
 
@@ -1751,6 +1954,20 @@
   });
 
   searchInput.addEventListener('input', () => { searchQuery = searchInput.value; renderPageList(); });
+
+  // --- Page filter events ---
+  pageFilterSearch.addEventListener('input', () => {
+    pageLineSearch = pageFilterSearch.value;
+    applyLineFilters();
+  });
+
+  hideDoneCheck.addEventListener('change', () => {
+    hideDoneTodos = hideDoneCheck.checked;
+    pageFilterHideDone.classList.toggle('active', hideDoneTodos);
+    applyLineFilters();
+  });
+
+  pageFilterClear.addEventListener('click', resetPageFilters);
 
   menuBtn.addEventListener('click', () => {
     sidebar.classList.toggle('open');
