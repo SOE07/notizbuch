@@ -571,6 +571,29 @@
     white-space: pre-wrap;
   }
 
+  .line-del {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    font-size: 13px;
+    line-height: 1;
+    color: #d0ccc0;
+    margin-top: calc((var(--line-h) - 20px) / 2);
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+  }
+
+  .line-row:hover .line-del { opacity: 0.6; }
+  .line-del:hover { opacity: 1 !important; color: var(--accent); }
+
   .line-text:empty::before {
     content: attr(data-placeholder);
     color: #d5d0c5;
@@ -1161,10 +1184,33 @@
         openTagDd(i, tagBtn);
       });
 
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'line-del';
+      delBtn.innerHTML = '&#128465;';
+      delBtn.title = 'Zeile loeschen';
+
+      delBtn.addEventListener('click', () => {
+        const l = pg.lines[i];
+        if (!stripHtml(l.text).trim() && !l.date && !l.tag && !l.todo) return;
+        l.text = '';
+        l.date = '';
+        l.tag = '';
+        l.todo = false;
+        l.done = false;
+        pg.updatedAt = Date.now();
+        save();
+        renderPage();
+        renderTags();
+        renderPageList();
+        if (activeTab === 'todos') { renderTodoFilters(); renderTodoList(); }
+      });
+
       row.appendChild(todoBtn);
       row.appendChild(dateIn);
       row.appendChild(tagBtn);
       row.appendChild(textIn);
+      row.appendChild(delBtn);
       linesArea.appendChild(row);
     });
 
