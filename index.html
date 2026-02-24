@@ -310,8 +310,8 @@
 
   .line-row {
     display: flex;
-    align-items: center;
-    height: var(--line-h);
+    align-items: flex-start;
+    min-height: var(--line-h);
     gap: 2px;
   }
 
@@ -332,6 +332,7 @@
     font-size: 15px;
     line-height: 1;
     color: #ccc5b5;
+    margin-top: calc((var(--line-h) - 18px) / 2);
   }
 
   .line-todo:hover { color: var(--ink-light); }
@@ -545,6 +546,7 @@
     font-family: 'Inter', sans-serif;
     height: 20px;
     line-height: 16px;
+    margin-top: calc((var(--line-h) - 20px) / 2);
   }
 
   .line-tag-btn:hover { border-color: var(--tag-active); color: var(--tag-active); background: var(--tag-bg); }
@@ -559,13 +561,39 @@
     font-size: 18px;
     color: var(--ink);
     outline: none;
-    height: var(--line-h);
+    min-height: var(--line-h);
     line-height: var(--line-h);
     padding: 0 4px;
     min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
   }
 
-  .line-text::placeholder { color: #d5d0c5; }
+  .line-text:empty::before {
+    content: attr(data-placeholder);
+    color: #d5d0c5;
+    pointer-events: none;
+  }
+
+  .line-text b, .line-text strong { font-weight: 700; }
+
+  .bold-btn {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-light);
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+    margin-right: 6px;
+  }
+
+  .bold-btn:hover { opacity: 1; color: var(--ink); }
 
   .paper-footer {
     padding: 6px 16px;
@@ -763,7 +791,10 @@
   <div class="paper" id="paper">
     <div class="paper-header">
       <span class="paper-page-info" id="pageInfo">Seite 1</span>
-      <button class="paper-del-btn" id="delPageBtn">Seite entfernen</button>
+      <div>
+        <button class="bold-btn" id="boldBtn" title="Fett (Strg+B)"><b>B</b></button>
+        <button class="paper-del-btn" id="delPageBtn">Seite entfernen</button>
+      </div>
     </div>
     <div class="lines-area" id="linesArea"></div>
     <div class="paper-footer" id="pageFooter">Seite 1 von 1</div>
@@ -814,6 +845,7 @@
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
   const paper = document.getElementById('paper');
+  const boldBtn = document.getElementById('boldBtn');
   const tagDd = document.getElementById('tagDd');
   const tagDdSearch = document.getElementById('tagDdSearch');
   const tagDdList = document.getElementById('tagDdList');
@@ -848,6 +880,21 @@
     const d = document.createElement('div');
     d.textContent = s;
     return d.innerHTML;
+  }
+
+  function stripHtml(html) {
+    return html.replace(/<[^>]*>/g, '');
+  }
+
+  function isCursorAtStart(el) {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return true;
+    const range = sel.getRangeAt(0);
+    if (!range.collapsed) return false;
+    const preRange = document.createRange();
+    preRange.selectNodeContents(el);
+    preRange.setEnd(range.startContainer, range.startOffset);
+    return preRange.toString().length === 0;
   }
 
   function emptyPage() {
@@ -917,8 +964,8 @@
   }
 
   function pagePreview(p) {
-    const f = p.lines.find(l => l.text.trim());
-    return f ? f.text.trim().slice(0, 55) : 'Leere Seite';
+    const f = p.lines.find(l => stripHtml(l.text).trim());
+    return f ? stripHtml(f.text).trim().slice(0, 55) : 'Leere Seite';
   }
 
   function pageDateRange(p) {
@@ -933,7 +980,7 @@
     if (activeTagFilter) idx = idx.filter(i => pages[i].lines.some(l => l.tag === activeTagFilter));
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      idx = idx.filter(i => pages[i].lines.some(l => l.text.toLowerCase().includes(q) || l.tag.toLowerCase().includes(q)));
+      idx = idx.filter(i => pages[i].lines.some(l => stripHtml(l.text).toLowerCase().includes(q) || l.tag.toLowerCase().includes(q)));
     }
     return idx;
   }
@@ -1014,11 +1061,11 @@
       tagBtn.className = 'line-tag-btn' + (line.tag ? ' has-tag' : '');
       tagBtn.textContent = line.tag || '#';
 
-      const textIn = document.createElement('input');
-      textIn.type = 'text';
+      const textIn = document.createElement('div');
+      textIn.contentEditable = 'true';
       textIn.className = 'line-text' + (line.todo && line.done ? ' done' : '');
-      textIn.value = line.text;
-      if (i === 0 && !pg.lines.some(l => l.text)) textIn.placeholder = 'Schreibe hier...';
+      textIn.innerHTML = line.text;
+      if (i === 0 && !pg.lines.some(l => stripHtml(l.text).trim())) textIn.dataset.placeholder = 'Schreibe hier...';
 
       // Events: 3-state cycle (none → todo → done → none)
       todoBtn.addEventListener('click', () => {
@@ -1047,8 +1094,9 @@
       });
 
       textIn.addEventListener('input', () => {
-        pg.lines[i].text = textIn.value;
-        if (textIn.value && !pg.lines[i].date) {
+        if (textIn.innerHTML === '<br>' || textIn.innerHTML === '<br/>') textIn.innerHTML = '';
+        pg.lines[i].text = textIn.innerHTML;
+        if (textIn.textContent.trim() && !pg.lines[i].date) {
           pg.lines[i].date = todayStr();
           dateIn.value = pg.lines[i].date;
         }
@@ -1058,8 +1106,14 @@
         if (activeTab === 'todos') renderTodoList();
       });
 
+      textIn.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        document.execCommand('insertText', false, text);
+      });
+
       textIn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
           if (i < LINES_PER_PAGE - 1) {
             focusLine(i + 1);
@@ -1072,11 +1126,11 @@
               setTimeout(() => focusLine(0), 250);
             }
           }
-        } else if (e.key === 'Backspace' && textIn.selectionStart === 0 && textIn.selectionEnd === 0) {
-          if (!textIn.value && !pg.lines[i].date && !pg.lines[i].tag && i > 0) {
+        } else if (e.key === 'Backspace' && isCursorAtStart(textIn)) {
+          if (!textIn.textContent.trim() && !pg.lines[i].date && !pg.lines[i].tag && i > 0) {
             e.preventDefault();
             focusLine(i - 1, 'end');
-          } else if (i === 0 && !textIn.value && curPage > 0) {
+          } else if (i === 0 && !textIn.textContent.trim() && curPage > 0) {
             e.preventDefault();
             goTo(curPage - 1, 'left');
             setTimeout(() => focusLine(LINES_PER_PAGE - 1, 'end'), 250);
@@ -1095,6 +1149,9 @@
             goTo(curPage + 1, 'right');
             setTimeout(() => focusLine(0), 250);
           }
+        } else if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+          e.preventDefault();
+          document.execCommand('bold');
         }
       });
 
@@ -1117,10 +1174,16 @@
     requestAnimationFrame(() => {
       const rows = linesArea.querySelectorAll('.line-row');
       if (!rows[idx]) return;
-      const inp = rows[idx].querySelector('.line-text');
-      inp.focus();
-      if (pos === 'end') inp.setSelectionRange(inp.value.length, inp.value.length);
-      else if (typeof pos === 'number') inp.setSelectionRange(pos, pos);
+      const el = rows[idx].querySelector('.line-text');
+      el.focus();
+      if (pos === 'end' && el.childNodes.length > 0) {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     });
   }
 
@@ -1268,7 +1331,7 @@
     pages.forEach((p, pi) => {
       p.lines.forEach((l, li) => {
         if (l.todo) {
-          items.push({ text: l.text || '(leer)', tag: l.tag, date: l.date, done: !!l.done, pageIdx: pi, lineIdx: li });
+          items.push({ text: stripHtml(l.text) || '(leer)', tag: l.tag, date: l.date, done: !!l.done, pageIdx: pi, lineIdx: li });
         }
       });
     });
@@ -1390,6 +1453,7 @@
   // --- Events ---
   newPageBtn.addEventListener('click', () => { addPage(); closeSidebar(); });
   delPageBtn.addEventListener('click', deletePage);
+  boldBtn.addEventListener('click', () => { document.execCommand('bold'); });
   prevBtn.addEventListener('click', () => goTo(curPage - 1, 'left'));
   nextBtn.addEventListener('click', () => {
     if (curPage < pages.length - 1) goTo(curPage + 1, 'right');
