@@ -1366,8 +1366,8 @@
         const p = pages[i];
         const tags = pageTags(p).map(t => { const c = tagColor(t); return `<span class="pg-item-tag" style="background:${c.bg};color:${c.text}">${esc(t)}</span>`; }).join('');
         return `<div class="pg-item ${i === curPage ? 'active' : ''}" data-i="${i}">
-          <div class="pg-item-preview">${esc(pagePreview(p))}</div>
-          <div class="pg-item-meta"><span class="pg-item-date">S.${i + 1} ${pageDateRange(p)}</span>${tags}</div>
+          <div class="pg-item-preview">Seite ${i + 1}</div>
+          <div class="pg-item-meta"><span class="pg-item-date">${pageDateRange(p)}</span>${tags}</div>
         </div>`;
       }).join('');
     }
