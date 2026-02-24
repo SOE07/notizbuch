@@ -173,12 +173,13 @@
   }
 
   .version-info {
-    padding: 6px 14px;
-    font-size: 8px;
+    padding: 8px 14px;
+    font-size: 10px;
     color: var(--ink-light);
     text-align: center;
-    opacity: 0.5;
+    opacity: 0.75;
     border-top: 1px solid #d8d0c0;
+    flex-shrink: 0;
   }
 
   /* --- Notebook area --- */
@@ -687,6 +688,35 @@
     flex-shrink: 0;
   }
 
+  .tag-dd-colors {
+    display: none;
+    gap: 4px;
+    padding: 8px 10px;
+    border-top: 1px solid #eee;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .tag-dd-colors.visible { display: flex; }
+
+  .tag-dd-colors-label {
+    font-size: 9px;
+    color: var(--ink-light);
+    margin-right: 2px;
+  }
+
+  .tag-dd-color {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.12s;
+  }
+
+  .tag-dd-color:hover { transform: scale(1.2); }
+  .tag-dd-color.active { border-color: #333; box-shadow: 0 0 0 1px white inset; }
+
   /* Page turn animation */
   .lines-area.turn-left { animation: turnL 0.22s ease; }
   .lines-area.turn-right { animation: turnR 0.22s ease; }
@@ -844,6 +874,7 @@
 <div class="tag-dropdown" id="tagDd">
   <input type="text" class="tag-dd-search" id="tagDdSearch" placeholder="Tag eingeben..." autocomplete="off">
   <div class="tag-dd-list" id="tagDdList"></div>
+  <div class="tag-dd-colors" id="tagDdColors"></div>
 </div>
 
 <script>
@@ -906,11 +937,28 @@
     { bg: '#f1f8e9', text: '#558b2f' },
   ];
 
-  function tagColor(name) {
-    if (!name) return null;
+  let tagColorMap = {};
+
+  function loadTagColors() {
+    const raw = localStorage.getItem('notizbuch_tag_colors');
+    if (raw) tagColorMap = JSON.parse(raw);
+  }
+
+  function saveTagColors() {
+    localStorage.setItem('notizbuch_tag_colors', JSON.stringify(tagColorMap));
+  }
+
+  function tagColorIndex(name) {
+    if (!name) return 0;
+    if (tagColorMap[name] !== undefined) return tagColorMap[name] % TAG_PALETTE.length;
     let h = 0;
     for (let i = 0; i < name.length; i++) h = ((h << 5) - h + name.charCodeAt(i)) | 0;
-    return TAG_PALETTE[Math.abs(h) % TAG_PALETTE.length];
+    return Math.abs(h) % TAG_PALETTE.length;
+  }
+
+  function tagColor(name) {
+    if (!name) return null;
+    return TAG_PALETTE[tagColorIndex(name)];
   }
 
   // --- Helpers ---
@@ -1352,6 +1400,38 @@
     tagDdList.querySelectorAll('.tag-dd-item[data-t]').forEach(el => {
       el.addEventListener('click', () => pickTag(el.dataset.t));
     });
+    renderTagDdColors();
+  }
+
+  function renderTagDdColors() {
+    const tagDdColors = document.getElementById('tagDdColors');
+    const pg = pages[curPage];
+    const currentTag = pg && ddLineIdx !== null && pg.lines[ddLineIdx] ? pg.lines[ddLineIdx].tag : '';
+
+    if (!currentTag) {
+      tagDdColors.classList.remove('visible');
+      return;
+    }
+
+    tagDdColors.classList.add('visible');
+    const activeIdx = tagColorIndex(currentTag);
+    let h = '<span class="tag-dd-colors-label">Farbe:</span>';
+    TAG_PALETTE.forEach((c, i) => {
+      h += `<span class="tag-dd-color${i === activeIdx ? ' active' : ''}" style="background:${c.text}" data-ci="${i}"></span>`;
+    });
+    tagDdColors.innerHTML = h;
+
+    tagDdColors.querySelectorAll('.tag-dd-color').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tagColorMap[currentTag] = +el.dataset.ci;
+        saveTagColors();
+        renderPage();
+        renderTags();
+        renderPageList();
+        renderTagDdColors();
+      });
+    });
   }
 
   function pickTag(tag) {
@@ -1640,6 +1720,7 @@
 
   // --- Init ---
   document.getElementById('versionInfo').textContent = APP_VERSION + ' | Build: ' + BUILD_DATE;
+  loadTagColors();
   load();
   renderTags();
   renderPage();
