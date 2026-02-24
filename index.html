@@ -172,6 +172,15 @@
     border-top: 1px solid #d8d0c0;
   }
 
+  .version-info {
+    padding: 6px 14px;
+    font-size: 8px;
+    color: var(--ink-light);
+    text-align: center;
+    opacity: 0.5;
+    border-top: 1px solid #d8d0c0;
+  }
+
   /* --- Notebook area --- */
   .notebook-area {
     flex: 1;
@@ -799,6 +808,8 @@
   <div class="page-list" id="pageList"></div>
   <div class="pg-count" id="pgCount"></div>
 
+  <div class="version-info" id="versionInfo"></div>
+
   <div class="todo-section" id="todoSection">
     <div class="todo-filters" id="todoFilters"></div>
     <div class="todo-tag-filters" id="todoTagFilters"></div>
@@ -837,6 +848,8 @@
 
 <script>
 (function() {
+  const APP_VERSION = 'v1.0.0';
+  const BUILD_DATE = '24.02.2026 – 12:00';
   const LINES_PER_PAGE = 18;
 
   // --- State ---
@@ -1626,6 +1639,7 @@
   });
 
   // --- Init ---
+  document.getElementById('versionInfo').textContent = APP_VERSION + ' | Build: ' + BUILD_DATE;
   load();
   renderTags();
   renderPage();
