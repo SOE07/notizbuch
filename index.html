@@ -133,6 +133,21 @@
   .sb-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
   .sb-btn.primary:hover { background: #c0392b; }
 
+  .sb-btn.file-linked { background: #e8f5e9; color: #2e7d32; border-color: #2e7d32; }
+  .sb-btn.file-linked:hover { background: #c8e6c9; }
+
+  .file-status {
+    font-size: 9px;
+    color: var(--ink-light);
+    text-align: center;
+    padding: 2px 14px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .file-status.active { color: #2e7d32; }
+
   .page-list { flex: 1; overflow-y: auto; padding: 2px 0; }
 
   .pg-item {
@@ -823,6 +838,8 @@
 
   <div class="sidebar-actions">
     <button class="sb-btn primary" id="newPageBtn">+ Neue Seite</button>
+    <button class="sb-btn" id="fileSyncBtn">Datei verknuepfen</button>
+    <div class="file-status" id="fileStatus"></div>
     <div style="display:flex;gap:6px">
       <button class="sb-btn" id="exportBtn" style="flex:1">Export</button>
       <button class="sb-btn" id="importBtn" style="flex:1">Import</button>
@@ -922,6 +939,106 @@
   const todoTagFilters = document.getElementById('todoTagFilters');
   const todoList = document.getElementById('todoList');
   const todoCount = document.getElementById('todoCount');
+  const fileSyncBtn = document.getElementById('fileSyncBtn');
+  const fileStatus = document.getElementById('fileStatus');
+
+  // --- File System Access API ---
+  let fileHandle = null;
+
+  function updateFileSyncUI() {
+    if (fileHandle) {
+      fileSyncBtn.textContent = 'Datei trennen';
+      fileSyncBtn.classList.add('file-linked');
+      fileStatus.textContent = fileHandle.name;
+      fileStatus.classList.add('active');
+    } else {
+      fileSyncBtn.textContent = 'Datei verknuepfen';
+      fileSyncBtn.classList.remove('file-linked');
+      fileStatus.textContent = '';
+      fileStatus.classList.remove('active');
+    }
+  }
+
+  async function saveToFile() {
+    if (!fileHandle) return;
+    try {
+      const writable = await fileHandle.createWritable();
+      await writable.write(JSON.stringify(pages, null, 2));
+      await writable.close();
+    } catch (err) {
+      console.warn('Datei-Sync fehlgeschlagen:', err);
+      fileHandle = null;
+      updateFileSyncUI();
+    }
+  }
+
+  async function connectFile() {
+    if (!window.showSaveFilePicker) {
+      alert('Dein Browser unterstuetzt die File System Access API nicht. Bitte verwende Chrome oder Edge.');
+      return;
+    }
+    try {
+      fileHandle = await window.showSaveFilePicker({
+        suggestedName: 'notizbuch.json',
+        types: [{
+          description: 'JSON Datei',
+          accept: { 'application/json': ['.json'] }
+        }]
+      });
+      await saveToFile();
+      updateFileSyncUI();
+    } catch (err) {
+      if (err.name !== 'AbortError') console.warn('Datei-Verknuepfung abgebrochen:', err);
+    }
+  }
+
+  async function loadFromFile() {
+    if (!window.showOpenFilePicker) {
+      alert('Dein Browser unterstuetzt die File System Access API nicht. Bitte verwende Chrome oder Edge.');
+      return;
+    }
+    try {
+      const [handle] = await window.showOpenFilePicker({
+        types: [{
+          description: 'JSON Datei',
+          accept: { 'application/json': ['.json'] }
+        }]
+      });
+      const file = await handle.getFile();
+      const text = await file.text();
+      const imp = JSON.parse(text);
+      if (!Array.isArray(imp)) { alert('Ungueltige Datei.'); return; }
+      pages = imp;
+      curPage = 0;
+      fileHandle = handle;
+      save();
+      updateFileSyncUI();
+      renderTags();
+      renderPage();
+      renderPageList();
+    } catch (err) {
+      if (err.name !== 'AbortError') { alert('Fehler: ' + err.message); }
+    }
+  }
+
+  function disconnectFile() {
+    fileHandle = null;
+    updateFileSyncUI();
+  }
+
+  fileSyncBtn.addEventListener('click', async () => {
+    if (fileHandle) {
+      disconnectFile();
+    } else {
+      // Ask user: new file or open existing
+      const choice = confirm('Neue Datei anlegen?\n\nOK = Neue Datei erstellen\nAbbrechen = Bestehende Datei oeffnen');
+      if (choice) {
+        await connectFile();
+      } else {
+        await loadFromFile();
+      }
+    }
+  });
 
   // --- Tag color palette ---
   const TAG_PALETTE = [
@@ -968,6 +1085,7 @@
 
   function save() {
     localStorage.setItem('notizbuch_pages', JSON.stringify(pages));
+    saveToFile();
   }
 
   function scheduleSave() {
@@ -1722,6 +1840,7 @@
   document.getElementById('versionInfo').textContent = APP_VERSION + ' | Build: ' + BUILD_DATE;
   loadTagColors();
   load();
+  updateFileSyncUI();
   renderTags();
   renderPage();
 })();
