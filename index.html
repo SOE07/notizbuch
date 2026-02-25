@@ -1186,8 +1186,8 @@
 
 <script>
 (function() {
-  const APP_VERSION = 'v1.1.0';
-  const BUILD_DATE = '25.02.2026 – 14:00';
+  const APP_VERSION = 'v1.2.0';
+  const BUILD_DATE = '25.02.2026 – 15:00';
   const LINES_PER_PAGE = 18;
 
   // --- State ---
@@ -1246,8 +1246,54 @@
   const hideDoneCheck = document.getElementById('hideDoneCheck');
   const pageFilterHideDone = document.getElementById('pageFilterHideDone');
 
-  // --- File System Access API ---
+  // --- File System Access API (mit IndexedDB-Persistenz) ---
   let fileHandle = null;
+
+  function openHandleDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('notizbuch_filehandle', 1);
+      req.onupgradeneeded = () => req.result.createObjectStore('handles');
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function storeFileHandle(handle) {
+    try {
+      const db = await openHandleDB();
+      const tx = db.transaction('handles', 'readwrite');
+      tx.objectStore('handles').put(handle, 'current');
+      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+    } catch (e) { console.warn('Handle speichern fehlgeschlagen:', e); }
+  }
+
+  async function clearStoredHandle() {
+    try {
+      const db = await openHandleDB();
+      const tx = db.transaction('handles', 'readwrite');
+      tx.objectStore('handles').delete('current');
+      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+    } catch (e) { console.warn('Handle loeschen fehlgeschlagen:', e); }
+  }
+
+  async function restoreFileHandle() {
+    try {
+      const db = await openHandleDB();
+      const tx = db.transaction('handles', 'readonly');
+      const store = tx.objectStore('handles');
+      const handle = await new Promise((res, rej) => {
+        const r = store.get('current');
+        r.onsuccess = () => res(r.result);
+        r.onerror = rej;
+      });
+      if (!handle) return;
+      const perm = await handle.requestPermission({ mode: 'readwrite' });
+      if (perm === 'granted') {
+        fileHandle = handle;
+        updateFileSyncUI();
+      }
+    } catch (e) { console.warn('Handle wiederherstellen fehlgeschlagen:', e); }
+  }
 
   function updateFileSyncUI() {
     if (fileHandle) {
@@ -1289,6 +1335,7 @@
           accept: { 'application/json': ['.json'] }
         }]
       });
+      await storeFileHandle(fileHandle);
       await saveToFile();
       updateFileSyncUI();
     } catch (err) {
@@ -1315,6 +1362,7 @@
       pages = imp;
       curPage = 0;
       fileHandle = handle;
+      await storeFileHandle(fileHandle);
       save();
       updateFileSyncUI();
       renderTags();
@@ -1327,6 +1375,7 @@
 
   function disconnectFile() {
     fileHandle = null;
+    clearStoredHandle();
     updateFileSyncUI();
   }
 
@@ -2381,7 +2430,7 @@
   document.getElementById('versionInfo').textContent = APP_VERSION + ' | Build: ' + BUILD_DATE;
   loadTagColors();
   load();
-  updateFileSyncUI();
+  restoreFileHandle();
   loadReminderSettings();
   initSettings();
   startReminderCheck();
