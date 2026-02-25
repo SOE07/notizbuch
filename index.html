@@ -320,21 +320,6 @@
     flex: 1;
     padding: 0 12px 0 6px;
     position: relative;
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent calc(var(--line-h) - 1px),
-        var(--line-color) calc(var(--line-h) - 1px),
-        var(--line-color) var(--line-h)
-      ),
-      repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent calc(var(--line-h) - 1px),
-        var(--line-color) calc(var(--line-h) - 1px),
-        var(--line-color) var(--line-h)
-      );
   }
 
   .line-row {
@@ -342,6 +327,7 @@
     align-items: flex-start;
     min-height: var(--line-h);
     gap: 2px;
+    border-bottom: 1px solid #000;
   }
 
   /* ToDo toggle button (3 states: none → open → done → none) */
@@ -876,7 +862,7 @@
     line-height: 1;
   }
 
-  .line-row.filtered-out { display: none; }
+  .line-row.filtered-out { visibility: hidden; }
 
   .page-filter-bar .page-filter-clear {
     background: none;
