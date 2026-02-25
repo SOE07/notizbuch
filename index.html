@@ -788,8 +788,9 @@
     padding: 4px 12px 4px 6px;
     border-bottom: 1px solid #e8e4dc;
     background: #faf8f4;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     min-height: 30px;
+    overflow-x: auto;
   }
 
   .page-filter-search {
@@ -827,8 +828,9 @@
   .page-filter-tags {
     display: flex;
     gap: 3px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
+    flex-shrink: 0;
   }
 
   .page-tag-chip {
@@ -841,6 +843,8 @@
     border: 1px solid transparent;
     transition: all 0.12s;
     user-select: none;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .page-tag-chip:hover { background: #d0e0f0; }
@@ -1650,7 +1654,7 @@
       const todoBtn = document.createElement('button');
       todoBtn.type = 'button';
       todoBtn.className = 'line-todo' + (line.todo ? (line.done ? ' is-done' : ' is-todo') : '');
-      todoBtn.innerHTML = line.todo ? (line.done ? '&#9745;' : '&#9744;') : '&#183;';
+      todoBtn.innerHTML = line.todo ? (line.done ? '&#9745;' : '&#9744;') : '';
       todoBtn.title = line.todo ? (line.done ? 'Erledigt (klick: zuruecksetzen)' : 'Offen (klick: abhaken)') : 'Klick: als ToDo markieren';
 
       // Priority button (only visible for todo lines)
@@ -1696,7 +1700,7 @@
           l.todo = false; l.done = false; l.priority = '';
         }
         todoBtn.className = 'line-todo' + (l.todo ? (l.done ? ' is-done' : ' is-todo') : '');
-        todoBtn.innerHTML = l.todo ? (l.done ? '&#9745;' : '&#9744;') : '&#183;';
+        todoBtn.innerHTML = l.todo ? (l.done ? '&#9745;' : '&#9744;') : '';
         todoBtn.title = l.todo ? (l.done ? 'Erledigt (klick: zuruecksetzen)' : 'Offen (klick: abhaken)') : 'Klick: als ToDo markieren';
         textIn.classList.toggle('done', l.todo && l.done);
         // Update priority button visibility
