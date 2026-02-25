@@ -376,6 +376,34 @@
     opacity: 0.5;
   }
 
+  /* Priority button (only visible for todo lines) */
+  .line-prio {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    margin-top: calc((var(--line-h) - 18px) / 2);
+    transition: all 0.15s;
+    font-family: Arial, sans-serif;
+    color: #ccc5b5;
+  }
+
+  .line-prio.visible { display: flex; }
+  .line-prio.prio-a { color: #c0392b; background: #fce4ec; }
+  .line-prio.prio-b { color: #e67e22; background: #fff3e0; }
+  .line-prio.prio-c { color: #27ae60; background: #e8f5e9; }
+  .line-prio:hover { opacity: 0.7; }
+
   /* Sidebar tabs */
   .sidebar-tabs {
     display: flex;
@@ -526,12 +554,113 @@
 
   .todo-item-page:hover { text-decoration: underline; }
 
+  .todo-item-prio {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 0 4px;
+    border-radius: 3px;
+    line-height: 1.4;
+  }
+
+  .todo-item-prio.prio-a { color: #c0392b; background: #fce4ec; }
+  .todo-item-prio.prio-b { color: #e67e22; background: #fff3e0; }
+  .todo-item-prio.prio-c { color: #27ae60; background: #e8f5e9; }
+
   .todo-count {
     padding: 5px 14px;
     font-size: 9px;
     color: var(--ink-light);
     text-align: center;
     border-top: 1px solid #d8d0c0;
+  }
+
+  /* Settings section */
+  .settings-section {
+    padding: 0;
+    border-top: 1px solid #d8d0c0;
+    flex-shrink: 0;
+  }
+
+  .settings-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--ink-light);
+    padding: 8px 14px;
+    user-select: none;
+    transition: all 0.15s;
+  }
+
+  .settings-toggle:hover { color: var(--ink); background: #e8e2d5; }
+
+  .settings-body {
+    display: none;
+    padding: 0 14px 10px;
+  }
+
+  .settings-body.open { display: block; }
+
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 11px;
+    color: var(--ink);
+  }
+
+  .settings-row input[type="time"] {
+    width: 80px;
+    padding: 3px 6px;
+    border: 1px solid #c8c0b0;
+    border-radius: 4px;
+    font-size: 11px;
+    background: white;
+    color: var(--ink);
+    outline: none;
+  }
+
+  .settings-row input[type="time"]:focus { border-color: var(--tag-active); }
+
+  .switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+  .switch .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #ccc;
+    border-radius: 20px;
+    transition: 0.2s;
+  }
+
+  .switch .slider::before {
+    content: '';
+    position: absolute;
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.2s;
+  }
+
+  .switch input:checked + .slider { background: var(--tag-active); }
+  .switch input:checked + .slider::before { transform: translateX(16px); }
+
+  .settings-hint {
+    font-size: 9px;
+    color: var(--ink-light);
+    padding: 2px 0 0;
   }
 
   .line-date {
@@ -903,6 +1032,7 @@
 
     .paper::before { left: 100px; }
     .line-todo { width: 16px; height: 16px; font-size: 13px; }
+    .line-prio { width: 14px; height: 14px; font-size: 8px; }
     .line-date { width: 38px; font-size: 11px; }
     .line-tag-btn { width: 40px; font-size: 8px; }
     .line-text { font-size: 16px; }
@@ -921,6 +1051,7 @@
     .line-tag-btn { width: 36px; font-size: 7px; }
     .paper::before { left: 88px; }
     .line-todo { width: 14px; height: 14px; font-size: 11px; }
+    .line-prio { width: 12px; height: 12px; font-size: 7px; }
   }
 
   /* Scrollbar */
@@ -966,6 +1097,27 @@
 
   <div class="page-list" id="pageList"></div>
   <div class="pg-count" id="pgCount"></div>
+
+  <div class="settings-section" id="settingsSection">
+    <div class="settings-toggle" id="settingsToggle">
+      <span>&#9881; Einstellungen</span>
+      <span id="settingsArrow">&#9656;</span>
+    </div>
+    <div class="settings-body" id="settingsBody">
+      <div class="settings-row">
+        <label for="reminderEnabled">Erinnerung</label>
+        <label class="switch">
+          <input type="checkbox" id="reminderEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <label for="reminderTime">Uhrzeit</label>
+        <input type="time" id="reminderTime" value="08:00">
+      </div>
+      <div class="settings-hint" id="reminderHint"></div>
+    </div>
+  </div>
 
   <div class="version-info" id="versionInfo"></div>
 
@@ -1037,6 +1189,12 @@
   let pageLineSearch = '';
   let pageLineTagFilter = null;
   let hideDoneTodos = false;
+
+  // Reminder state
+  let reminderEnabled = false;
+  let reminderTime = '08:00';
+  let reminderLastShown = '';
+  let reminderInterval = null;
 
   // --- Elements ---
   const sidebar = document.getElementById('sidebar');
@@ -1252,7 +1410,7 @@
 
   function emptyPage() {
     const lines = [];
-    for (let i = 0; i < LINES_PER_PAGE; i++) lines.push({ text: '', tag: '', date: '', todo: false, done: false });
+    for (let i = 0; i < LINES_PER_PAGE; i++) lines.push({ text: '', tag: '', date: '', todo: false, done: false, priority: '' });
     return { id: genId(), lines, createdAt: Date.now(), updatedAt: Date.now() };
   }
 
@@ -1264,7 +1422,16 @@
   // --- Load & Migrate ---
   function load() {
     const raw = localStorage.getItem('notizbuch_pages');
-    if (raw) { pages = JSON.parse(raw); return; }
+    if (raw) {
+      pages = JSON.parse(raw);
+      // Migrate: add priority field if missing
+      let migrated = false;
+      pages.forEach(p => p.lines.forEach(l => {
+        if (l.priority === undefined) { l.priority = ''; migrated = true; }
+      }));
+      if (migrated) save();
+      return;
+    }
 
     // Migrate from old format
     const oldRaw = localStorage.getItem('notizbuch_notes');
@@ -1289,10 +1456,11 @@
       });
     }
 
-    // Migrate: add todo + done fields
+    // Migrate: add todo + done + priority fields
     pages.forEach(p => p.lines.forEach(l => {
-      if (l.todo === undefined) l.todo = !!l.done; // old checked lines become todos
+      if (l.todo === undefined) l.todo = !!l.done;
       if (l.done === undefined) l.done = false;
+      if (l.priority === undefined) l.priority = '';
     }));
 
     if (pages.length === 0) pages = [emptyPage()];
@@ -1474,6 +1642,14 @@
       todoBtn.innerHTML = line.todo ? (line.done ? '&#9745;' : '&#9744;') : '&#183;';
       todoBtn.title = line.todo ? (line.done ? 'Erledigt (klick: zuruecksetzen)' : 'Offen (klick: abhaken)') : 'Klick: als ToDo markieren';
 
+      // Priority button (only visible for todo lines)
+      const prioBtn = document.createElement('button');
+      prioBtn.type = 'button';
+      const prioClass = line.priority ? ' prio-' + line.priority.toLowerCase() : '';
+      prioBtn.className = 'line-prio' + (line.todo ? ' visible' : '') + prioClass;
+      prioBtn.textContent = line.priority || '\u2013';
+      prioBtn.title = line.todo ? 'Prioritaet: ' + (line.priority || 'keine') + ' (klick: aendern)' : '';
+
       const dateIn = document.createElement('input');
       dateIn.type = 'text';
       dateIn.className = 'line-date';
@@ -1506,16 +1682,38 @@
         } else if (!l.done) {
           l.done = true;
         } else {
-          l.todo = false; l.done = false;
+          l.todo = false; l.done = false; l.priority = '';
         }
         todoBtn.className = 'line-todo' + (l.todo ? (l.done ? ' is-done' : ' is-todo') : '');
         todoBtn.innerHTML = l.todo ? (l.done ? '&#9745;' : '&#9744;') : '&#183;';
         todoBtn.title = l.todo ? (l.done ? 'Erledigt (klick: zuruecksetzen)' : 'Offen (klick: abhaken)') : 'Klick: als ToDo markieren';
         textIn.classList.toggle('done', l.todo && l.done);
+        // Update priority button visibility
+        prioBtn.classList.toggle('visible', l.todo);
+        if (!l.todo) {
+          prioBtn.className = 'line-prio';
+          prioBtn.textContent = '\u2013';
+        }
         pg.updatedAt = Date.now();
         save();
         if (activeTab === 'todos') { renderTodoFilters(); renderTodoList(); }
         renderPageList();
+      });
+
+      // Priority cycle: none → A → B → C → none
+      prioBtn.addEventListener('click', () => {
+        const l = pg.lines[i];
+        if (!l.todo) return;
+        const cycle = ['', 'A', 'B', 'C'];
+        const idx = cycle.indexOf(l.priority || '');
+        l.priority = cycle[(idx + 1) % cycle.length];
+        const pc = l.priority ? ' prio-' + l.priority.toLowerCase() : '';
+        prioBtn.className = 'line-prio visible' + pc;
+        prioBtn.textContent = l.priority || '\u2013';
+        prioBtn.title = 'Prioritaet: ' + (l.priority || 'keine') + ' (klick: aendern)';
+        pg.updatedAt = Date.now();
+        save();
+        if (activeTab === 'todos') renderTodoList();
       });
 
       dateIn.addEventListener('input', () => {
@@ -1605,6 +1803,7 @@
         l.tag = '';
         l.todo = false;
         l.done = false;
+        l.priority = '';
         pg.updatedAt = Date.now();
         save();
         renderPage();
@@ -1614,6 +1813,7 @@
       });
 
       row.appendChild(todoBtn);
+      row.appendChild(prioBtn);
       row.appendChild(dateIn);
       row.appendChild(tagBtn);
       row.appendChild(textIn);
@@ -1821,7 +2021,7 @@
     pages.forEach((p, pi) => {
       p.lines.forEach((l, li) => {
         if (l.todo) {
-          items.push({ text: stripHtml(l.text) || '(leer)', tag: l.tag, date: l.date, done: !!l.done, pageIdx: pi, lineIdx: li });
+          items.push({ text: stripHtml(l.text) || '(leer)', tag: l.tag, date: l.date, done: !!l.done, priority: l.priority || '', pageIdx: pi, lineIdx: li });
         }
       });
     });
@@ -1894,12 +2094,13 @@
       todoList.innerHTML = items.map((t, idx) => {
         const tc = t.tag ? tagColor(t.tag) : null;
         const tagH = t.tag ? `<span class="todo-item-tag" style="background:${tc.bg};color:${tc.text}">${esc(t.tag)}</span>` : '';
+        const prioH = t.priority ? `<span class="todo-item-prio prio-${t.priority.toLowerCase()}">${t.priority}</span>` : '';
         const icon = t.done ? '&#9745;' : '&#9744;';
         return `<div class="todo-item" data-idx="${idx}">
           <button class="todo-item-check ${t.done ? 'is-done' : ''}" data-pi="${t.pageIdx}" data-li="${t.lineIdx}">${icon}</button>
           <div class="todo-item-content">
             <div class="todo-item-text ${t.done ? 'done' : ''}">${esc(t.text)}</div>
-            <div class="todo-item-meta">${t.date || ''} ${tagH} <span class="todo-item-page" data-pi="${t.pageIdx}">S.${t.pageIdx + 1}</span></div>
+            <div class="todo-item-meta">${prioH} ${t.date || ''} ${tagH} <span class="todo-item-page" data-pi="${t.pageIdx}">S.${t.pageIdx + 1}</span></div>
           </div>
         </div>`;
       }).join('');
@@ -2053,11 +2254,119 @@
     e.target.value = '';
   });
 
+  // --- Reminder system ---
+  function loadReminderSettings() {
+    reminderEnabled = localStorage.getItem('notizbuch_reminder_enabled') === 'true';
+    reminderTime = localStorage.getItem('notizbuch_reminder_time') || '08:00';
+    reminderLastShown = localStorage.getItem('notizbuch_reminder_last_shown') || '';
+  }
+
+  function saveReminderSettings() {
+    localStorage.setItem('notizbuch_reminder_enabled', reminderEnabled);
+    localStorage.setItem('notizbuch_reminder_time', reminderTime);
+  }
+
+  function checkReminder() {
+    if (!reminderEnabled) return;
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const current = hh + ':' + mm;
+    const today = now.toISOString().slice(0, 10);
+
+    if (current === reminderTime && reminderLastShown !== today) {
+      const openTodos = collectTodos().filter(t => !t.done);
+      if (openTodos.length > 0) {
+        showReminderNotification(openTodos);
+        reminderLastShown = today;
+        localStorage.setItem('notizbuch_reminder_last_shown', today);
+      }
+    }
+  }
+
+  function showReminderNotification(openTodos) {
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'granted') return;
+
+    const count = openTodos.length;
+    const prioA = openTodos.filter(t => t.priority === 'A').length;
+    let body = count + ' offene' + (count === 1 ? 's ToDo' : ' ToDos');
+    if (prioA > 0) body += ' (' + prioA + ' mit Prio A)';
+
+    // Show up to 3 top items
+    const preview = openTodos.slice(0, 3).map(t => {
+      const p = t.priority ? '[' + t.priority + '] ' : '';
+      return p + t.text;
+    }).join('\n');
+    body += '\n' + preview;
+
+    new Notification('Notizbuch - Offene ToDos', { body: body });
+  }
+
+  function requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }
+
+  function startReminderCheck() {
+    if (reminderInterval) clearInterval(reminderInterval);
+    reminderInterval = setInterval(checkReminder, 60000);
+    checkReminder(); // Check immediately on start
+  }
+
+  function updateReminderHint() {
+    const hint = document.getElementById('reminderHint');
+    if (!reminderEnabled) {
+      hint.textContent = 'Erinnerung deaktiviert';
+    } else if (!('Notification' in window)) {
+      hint.textContent = 'Browser unterstuetzt keine Benachrichtigungen';
+    } else if (Notification.permission === 'denied') {
+      hint.textContent = 'Benachrichtigungen im Browser blockiert';
+    } else {
+      hint.textContent = 'Taeglich um ' + reminderTime + ' Uhr';
+    }
+  }
+
+  function initSettings() {
+    const toggle = document.getElementById('settingsToggle');
+    const body = document.getElementById('settingsBody');
+    const arrow = document.getElementById('settingsArrow');
+    const enabledCb = document.getElementById('reminderEnabled');
+    const timeInput = document.getElementById('reminderTime');
+
+    enabledCb.checked = reminderEnabled;
+    timeInput.value = reminderTime;
+
+    toggle.addEventListener('click', () => {
+      body.classList.toggle('open');
+      arrow.innerHTML = body.classList.contains('open') ? '&#9662;' : '&#9656;';
+    });
+
+    enabledCb.addEventListener('change', () => {
+      reminderEnabled = enabledCb.checked;
+      saveReminderSettings();
+      if (reminderEnabled) requestNotificationPermission();
+      updateReminderHint();
+    });
+
+    timeInput.addEventListener('change', () => {
+      reminderTime = timeInput.value;
+      saveReminderSettings();
+      updateReminderHint();
+    });
+
+    updateReminderHint();
+  }
+
   // --- Init ---
   document.getElementById('versionInfo').textContent = APP_VERSION + ' | Build: ' + BUILD_DATE;
   loadTagColors();
   load();
   updateFileSyncUI();
+  loadReminderSettings();
+  initSettings();
+  startReminderCheck();
   renderTags();
   renderPage();
 })();
