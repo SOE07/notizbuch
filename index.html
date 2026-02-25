@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Mein Notizbuch</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='cover' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%232c3e50'/%3E%3Cstop offset='100%25' stop-color='%231a252f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='10' y='4' width='44' height='56' rx='3' fill='url(%23cover)'/%3E%3Crect x='14' y='8' width='36' height='48' rx='2' fill='%23fffef8'/%3E%3Cline x1='22' y1='8' x2='22' y2='56' stroke='%23d8a0a0' stroke-width='1' opacity='0.6'/%3E%3Cline x1='18' y1='20' x2='46' y2='20' stroke='%23c0c8d4' stroke-width='0.8'/%3E%3Cline x1='18' y1='27' x2='46' y2='27' stroke='%23c0c8d4' stroke-width='0.8'/%3E%3Cline x1='18' y1='34' x2='46' y2='34' stroke='%23c0c8d4' stroke-width='0.8'/%3E%3Cline x1='18' y1='41' x2='46' y2='41' stroke='%23c0c8d4' stroke-width='0.8'/%3E%3Cline x1='18' y1='48' x2='46' y2='48' stroke='%23c0c8d4' stroke-width='0.8'/%3E%3Ccircle cx='10' cy='14' r='2.5' fill='%23888'/%3E%3Ccircle cx='10' cy='14' r='1.2' fill='%23f0ebe0'/%3E%3Ccircle cx='10' cy='26' r='2.5' fill='%23888'/%3E%3Ccircle cx='10' cy='26' r='1.2' fill='%23f0ebe0'/%3E%3Ccircle cx='10' cy='38' r='2.5' fill='%23888'/%3E%3Ccircle cx='10' cy='38' r='1.2' fill='%23f0ebe0'/%3E%3Ccircle cx='10' cy='50' r='2.5' fill='%23888'/%3E%3Ccircle cx='10' cy='50' r='1.2' fill='%23f0ebe0'/%3E%3Cpath d='M40 14 L44 14 L42 17Z' fill='%23e74c3c'/%3E%3Cline x1='25' y1='20' x2='38' y2='20' stroke='%232c3e50' stroke-width='1.2' opacity='0.5'/%3E%3Cline x1='25' y1='27' x2='42' y2='27' stroke='%232c3e50' stroke-width='1.2' opacity='0.4'/%3E%3Cline x1='25' y1='34' x2='36' y2='34' stroke='%232c3e50' stroke-width='1.2' opacity='0.3'/%3E%3C/svg%3E">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -39,7 +40,12 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    overflow-y: auto;
+    overflow: hidden;
+  }
+
+  .sidebar-bottom {
+    margin-top: auto;
+    flex-shrink: 0;
   }
 
   .sidebar-header {
@@ -1101,28 +1107,30 @@
   <div class="page-list" id="pageList"></div>
   <div class="pg-count" id="pgCount"></div>
 
-  <div class="settings-section" id="settingsSection">
-    <div class="settings-toggle" id="settingsToggle">
-      <span>&#9881; Einstellungen</span>
-      <span id="settingsArrow">&#9656;</span>
-    </div>
-    <div class="settings-body" id="settingsBody">
-      <div class="settings-row">
-        <label for="reminderEnabled">Erinnerung</label>
-        <label class="switch">
-          <input type="checkbox" id="reminderEnabled">
-          <span class="slider"></span>
-        </label>
+  <div class="sidebar-bottom">
+    <div class="settings-section" id="settingsSection">
+      <div class="settings-toggle" id="settingsToggle">
+        <span>&#9881; Einstellungen</span>
+        <span id="settingsArrow">&#9656;</span>
       </div>
-      <div class="settings-row">
-        <label for="reminderTime">Uhrzeit</label>
-        <input type="time" id="reminderTime" value="08:00">
+      <div class="settings-body" id="settingsBody">
+        <div class="settings-row">
+          <label for="reminderEnabled">Erinnerung</label>
+          <label class="switch">
+            <input type="checkbox" id="reminderEnabled">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <label for="reminderTime">Uhrzeit</label>
+          <input type="time" id="reminderTime" value="08:00">
+        </div>
+        <div class="settings-hint" id="reminderHint"></div>
       </div>
-      <div class="settings-hint" id="reminderHint"></div>
     </div>
-  </div>
 
-  <div class="version-info" id="versionInfo"></div>
+    <div class="version-info" id="versionInfo"></div>
+  </div>
 
   <div class="todo-section" id="todoSection">
     <div class="todo-filters" id="todoFilters"></div>
