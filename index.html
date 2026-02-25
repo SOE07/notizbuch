@@ -378,31 +378,32 @@
 
   /* Priority button (only visible for todo lines) */
   .line-prio {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 20px;
     flex-shrink: 0;
     cursor: pointer;
-    border: none;
+    border: 1px dashed #ccc;
     background: transparent;
     padding: 0;
     display: none;
     align-items: center;
     justify-content: center;
-    border-radius: 3px;
-    font-size: 10px;
+    border-radius: 4px;
+    font-size: 11px;
     font-weight: 700;
     line-height: 1;
-    margin-top: calc((var(--line-h) - 18px) / 2);
+    margin-top: calc((var(--line-h) - 20px) / 2);
     transition: all 0.15s;
     font-family: Arial, sans-serif;
-    color: #ccc5b5;
+    color: var(--ink-light);
   }
 
   .line-prio.visible { display: flex; }
-  .line-prio.prio-a { color: #c0392b; background: #fce4ec; }
-  .line-prio.prio-b { color: #e67e22; background: #fff3e0; }
-  .line-prio.prio-c { color: #27ae60; background: #e8f5e9; }
-  .line-prio:hover { opacity: 0.7; }
+  .line-prio.prio-none { color: var(--ink-light); background: #f5f3ee; border-style: dashed; }
+  .line-prio.prio-a { color: #fff; background: #e74c3c; border-color: #c0392b; border-style: solid; }
+  .line-prio.prio-b { color: #fff; background: #e67e22; border-color: #d35400; border-style: solid; }
+  .line-prio.prio-c { color: #fff; background: #27ae60; border-color: #1e8449; border-style: solid; }
+  .line-prio:hover { opacity: 0.8; transform: scale(1.1); }
 
   /* Sidebar tabs */
   .sidebar-tabs {
@@ -562,9 +563,9 @@
     line-height: 1.4;
   }
 
-  .todo-item-prio.prio-a { color: #c0392b; background: #fce4ec; }
-  .todo-item-prio.prio-b { color: #e67e22; background: #fff3e0; }
-  .todo-item-prio.prio-c { color: #27ae60; background: #e8f5e9; }
+  .todo-item-prio.prio-a { color: #fff; background: #e74c3c; }
+  .todo-item-prio.prio-b { color: #fff; background: #e67e22; }
+  .todo-item-prio.prio-c { color: #fff; background: #27ae60; }
 
   .todo-count {
     padding: 5px 14px;
@@ -577,8 +578,9 @@
   /* Settings section */
   .settings-section {
     padding: 0;
-    border-top: 1px solid #d8d0c0;
+    border-top: 2px solid #d8d0c0;
     flex-shrink: 0;
+    background: #ede8dc;
   }
 
   .settings-toggle {
@@ -586,14 +588,15 @@
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    font-size: 11px;
-    color: var(--ink-light);
-    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    padding: 10px 14px;
     user-select: none;
     transition: all 0.15s;
   }
 
-  .settings-toggle:hover { color: var(--ink); background: #e8e2d5; }
+  .settings-toggle:hover { color: var(--tag-active); background: #e8e2d5; }
 
   .settings-body {
     display: none;
@@ -1032,7 +1035,7 @@
 
     .paper::before { left: 100px; }
     .line-todo { width: 16px; height: 16px; font-size: 13px; }
-    .line-prio { width: 14px; height: 14px; font-size: 8px; }
+    .line-prio { width: 20px; height: 18px; font-size: 9px; }
     .line-date { width: 38px; font-size: 11px; }
     .line-tag-btn { width: 40px; font-size: 8px; }
     .line-text { font-size: 16px; }
@@ -1051,7 +1054,7 @@
     .line-tag-btn { width: 36px; font-size: 7px; }
     .paper::before { left: 88px; }
     .line-todo { width: 14px; height: 14px; font-size: 11px; }
-    .line-prio { width: 12px; height: 12px; font-size: 7px; }
+    .line-prio { width: 18px; height: 16px; font-size: 8px; }
   }
 
   /* Scrollbar */
@@ -1645,7 +1648,7 @@
       // Priority button (only visible for todo lines)
       const prioBtn = document.createElement('button');
       prioBtn.type = 'button';
-      const prioClass = line.priority ? ' prio-' + line.priority.toLowerCase() : '';
+      const prioClass = line.priority ? ' prio-' + line.priority.toLowerCase() : ' prio-none';
       prioBtn.className = 'line-prio' + (line.todo ? ' visible' : '') + prioClass;
       prioBtn.textContent = line.priority || '\u2013';
       prioBtn.title = line.todo ? 'Prioritaet: ' + (line.priority || 'keine') + ' (klick: aendern)' : '';
@@ -1693,6 +1696,9 @@
         if (!l.todo) {
           prioBtn.className = 'line-prio';
           prioBtn.textContent = '\u2013';
+        } else if (!l.priority) {
+          prioBtn.className = 'line-prio visible prio-none';
+          prioBtn.textContent = '\u2013';
         }
         pg.updatedAt = Date.now();
         save();
@@ -1707,7 +1713,7 @@
         const cycle = ['', 'A', 'B', 'C'];
         const idx = cycle.indexOf(l.priority || '');
         l.priority = cycle[(idx + 1) % cycle.length];
-        const pc = l.priority ? ' prio-' + l.priority.toLowerCase() : '';
+        const pc = l.priority ? ' prio-' + l.priority.toLowerCase() : ' prio-none';
         prioBtn.className = 'line-prio visible' + pc;
         prioBtn.textContent = l.priority || '\u2013';
         prioBtn.title = 'Prioritaet: ' + (l.priority || 'keine') + ' (klick: aendern)';
