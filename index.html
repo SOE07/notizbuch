@@ -240,21 +240,38 @@
   .page-arrow-left { left: 8px; }
   .page-arrow-right { right: 8px; }
 
+  /* Book spread – two pages side by side */
+  .book-spread {
+    display: flex;
+    width: 100%;
+    max-width: 1120px;
+    height: 100%;
+  }
+
   /* The paper */
   .paper {
-    width: 100%;
-    max-width: 560px;
+    width: 50%;
     background: var(--paper);
-    border-radius: 3px;
-    box-shadow:
-      2px 4px 16px rgba(0,0,0,0.18),
-      -1px 0 0 var(--paper-edge),
-      1px 0 0 var(--paper-edge);
     position: relative;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     touch-action: pan-y;
+  }
+
+  .paper-left {
+    border-radius: 3px 0 0 3px;
+    box-shadow:
+      -2px 4px 16px rgba(0,0,0,0.18),
+      -1px 0 0 var(--paper-edge);
+  }
+
+  .paper-right {
+    border-radius: 0 3px 3px 0;
+    box-shadow:
+      2px 4px 16px rgba(0,0,0,0.18),
+      1px 0 0 var(--paper-edge);
+    border-left: 1px solid var(--paper-edge);
   }
 
   /* Margin line */
@@ -271,8 +288,8 @@
     pointer-events: none;
   }
 
-  /* Spiral holes decoration */
-  .paper::after {
+  /* Spiral holes decoration – only on left page */
+  .paper-left::after {
     content: '';
     position: absolute;
     left: -6px;
@@ -1029,6 +1046,18 @@
 
     .notebook-area { padding: 8px 44px; }
 
+    /* Single page on mobile */
+    .paper-right { display: none; }
+    .paper-left {
+      width: 100%;
+      border-radius: 3px;
+      box-shadow:
+        2px 4px 16px rgba(0,0,0,0.18),
+        -1px 0 0 var(--paper-edge),
+        1px 0 0 var(--paper-edge);
+    }
+    .book-spread { max-width: 560px; }
+
     .paper::before { left: 100px; }
     .line-todo { width: 16px; height: 16px; font-size: 13px; }
     .line-prio { width: 20px; height: 18px; font-size: 9px; }
@@ -1133,27 +1162,41 @@
 <main class="notebook-area" id="notebookArea">
   <button class="page-arrow page-arrow-left" id="prevBtn">&#8249;</button>
 
-  <div class="paper" id="paper">
-    <div class="paper-header">
-      <span class="paper-page-info" id="pageInfo">Seite 1</span>
-      <div>
-        <button class="bold-btn" id="boldBtn" title="Fett (Strg+B)"><b>B</b></button>
-        <button class="paper-del-btn" id="delPageBtn">Seite entfernen</button>
+  <div class="book-spread" id="bookSpread">
+    <div class="paper paper-left" id="paper">
+      <div class="paper-header">
+        <span class="paper-page-info" id="pageInfo">Seite 1</span>
+        <div>
+          <button class="bold-btn" id="boldBtn" title="Fett (Strg+B)"><b>B</b></button>
+          <button class="paper-del-btn" id="delPageBtn">Seite entfernen</button>
+        </div>
       </div>
-    </div>
-    <div class="page-filter-bar" id="pageFilterBar">
-      <div class="page-filter-search-wrap">
-        <input type="text" class="page-filter-search" id="pageFilterSearch" placeholder="Zeilen filtern..." autocomplete="off">
+      <div class="page-filter-bar" id="pageFilterBar">
+        <div class="page-filter-search-wrap">
+          <input type="text" class="page-filter-search" id="pageFilterSearch" placeholder="Zeilen filtern..." autocomplete="off">
+        </div>
+        <div class="page-filter-tags" id="pageFilterTags"></div>
+        <button class="page-filter-clear" id="pageFilterClear" title="Filter zuruecksetzen">&#10005; Reset</button>
+        <label class="page-filter-toggle" id="pageFilterHideDone" title="Erledigte ToDos ausblenden">
+          <input type="checkbox" id="hideDoneCheck">
+          <span class="page-filter-icon">&#9745;</span> Erledigte ausblenden
+        </label>
       </div>
-      <div class="page-filter-tags" id="pageFilterTags"></div>
-      <button class="page-filter-clear" id="pageFilterClear" title="Filter zuruecksetzen">&#10005; Reset</button>
-      <label class="page-filter-toggle" id="pageFilterHideDone" title="Erledigte ToDos ausblenden">
-        <input type="checkbox" id="hideDoneCheck">
-        <span class="page-filter-icon">&#9745;</span> Erledigte ausblenden
-      </label>
+      <div class="lines-area" id="linesArea"></div>
+      <div class="paper-footer" id="pageFooter">Seite 1 von 1</div>
     </div>
-    <div class="lines-area" id="linesArea"></div>
-    <div class="paper-footer" id="pageFooter">Seite 1 von 1</div>
+
+    <div class="paper paper-right" id="paper2">
+      <div class="paper-header">
+        <span class="paper-page-info" id="pageInfo2">Seite 2</span>
+        <div>
+          <button class="bold-btn" id="boldBtn2" title="Fett (Strg+B)"><b>B</b></button>
+          <button class="paper-del-btn" id="delPageBtn2">Seite entfernen</button>
+        </div>
+      </div>
+      <div class="lines-area" id="linesArea2"></div>
+      <div class="paper-footer" id="pageFooter2">Seite 2 von 1</div>
+    </div>
   </div>
 
   <button class="page-arrow page-arrow-right" id="nextBtn">&#8250;</button>
@@ -1184,6 +1227,7 @@
   let saveTimer = null;
   let ddLineIdx = null;
   let ddHlIdx = -1;
+  let ddPageIdx = null;
   let activeTab = 'pages'; // 'pages' or 'todos'
   let todoFilter = 'open'; // 'open', 'done', 'all'
   let todoTagFilter = null;
@@ -1231,6 +1275,14 @@
   const pageFilterClear = document.getElementById('pageFilterClear');
   const hideDoneCheck = document.getElementById('hideDoneCheck');
   const pageFilterHideDone = document.getElementById('pageFilterHideDone');
+
+  // Second page (right side)
+  const paper2 = document.getElementById('paper2');
+  const linesArea2 = document.getElementById('linesArea2');
+  const pageInfo2 = document.getElementById('pageInfo2');
+  const pageFooter2 = document.getElementById('pageFooter2');
+  const delPageBtn2 = document.getElementById('delPageBtn2');
+  const boldBtn2 = document.getElementById('boldBtn2');
 
   // --- File System Access API (mit IndexedDB-Persistenz) ---
   let fileHandle = null;
@@ -1583,7 +1635,8 @@
       pageList.innerHTML = idx.map(i => {
         const p = pages[i];
         const tags = pageTags(p).map(t => { const c = tagColor(t); return `<span class="pg-item-tag" style="background:${c.bg};color:${c.text}">${esc(t)}</span>`; }).join('');
-        return `<div class="pg-item ${i === curPage ? 'active' : ''}" data-i="${i}">
+        const isActive = i === curPage || (isDualPage() && i === curPage + 1);
+        return `<div class="pg-item ${isActive ? 'active' : ''}" data-i="${i}">
           <div class="pg-item-preview">Seite ${i + 1}</div>
           <div class="pg-item-meta"><span class="pg-item-date">${pageDateRange(p)}</span>${tags}</div>
         </div>`;
@@ -1799,14 +1852,14 @@
           e.preventDefault();
           if (i < LINES_PER_PAGE - 1) {
             focusLine(i + 1);
+          } else if (isDualPage() && pages[curPage + 1]) {
+            focusLineIn(linesArea2, 0);
+          } else if (curPage < pages.length - 1) {
+            goTo(curPage + (isDualPage() ? 2 : 1), 'right');
+            setTimeout(() => focusLine(0), 250);
           } else {
-            if (curPage < pages.length - 1) {
-              goTo(curPage + 1, 'right');
-              setTimeout(() => focusLine(0), 250);
-            } else {
-              addPage();
-              setTimeout(() => focusLine(0), 250);
-            }
+            addPage();
+            setTimeout(() => focusLine(0), 250);
           }
         } else if (e.key === 'Backspace' && isCursorAtStart(textIn)) {
           if (!textIn.textContent.trim() && !pg.lines[i].date && !pg.lines[i].tag && i > 0) {
@@ -1814,21 +1867,23 @@
             focusLine(i - 1, 'end');
           } else if (i === 0 && !textIn.textContent.trim() && curPage > 0) {
             e.preventDefault();
-            goTo(curPage - 1, 'left');
-            setTimeout(() => focusLine(LINES_PER_PAGE - 1, 'end'), 250);
+            goTo(curPage - (isDualPage() ? 2 : 1), 'left');
+            setTimeout(() => { if (isDualPage()) focusLineIn(linesArea2, LINES_PER_PAGE - 1, 'end'); else focusLine(LINES_PER_PAGE - 1, 'end'); }, 250);
           }
         } else if (e.key === 'ArrowUp') {
           e.preventDefault();
           if (i > 0) focusLine(i - 1);
           else if (curPage > 0) {
-            goTo(curPage - 1, 'left');
-            setTimeout(() => focusLine(LINES_PER_PAGE - 1), 250);
+            goTo(curPage - (isDualPage() ? 2 : 1), 'left');
+            setTimeout(() => { if (isDualPage()) focusLineIn(linesArea2, LINES_PER_PAGE - 1); else focusLine(LINES_PER_PAGE - 1); }, 250);
           }
         } else if (e.key === 'ArrowDown') {
           e.preventDefault();
           if (i < LINES_PER_PAGE - 1) focusLine(i + 1);
-          else if (curPage < pages.length - 1) {
-            goTo(curPage + 1, 'right');
+          else if (isDualPage() && pages[curPage + 1]) {
+            focusLineIn(linesArea2, 0);
+          } else if (curPage < pages.length - 1) {
+            goTo(curPage + (isDualPage() ? 2 : 1), 'right');
             setTimeout(() => focusLine(0), 250);
           }
         } else if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
@@ -1877,6 +1932,202 @@
     renderPageFilterTags();
     applyLineFilters();
     renderPageList();
+    renderPage2();
+  }
+
+  function isDualPage() {
+    return window.innerWidth > 768 && paper2 && getComputedStyle(paper2).display !== 'none';
+  }
+
+  function renderPage2() {
+    if (!isDualPage()) return;
+    const rightIdx = curPage + 1;
+    const pg = pages[rightIdx];
+
+    linesArea2.innerHTML = '';
+
+    if (!pg) {
+      pageInfo2.textContent = '';
+      pageFooter2.textContent = '';
+      paper2.style.opacity = '0.4';
+      return;
+    }
+
+    paper2.style.opacity = '1';
+    pageInfo2.textContent = 'Seite ' + (rightIdx + 1);
+    pageFooter2.textContent = 'Seite ' + (rightIdx + 1) + ' von ' + pages.length;
+
+    pg.lines.forEach((line, i) => {
+      const row = document.createElement('div');
+      row.className = 'line-row';
+
+      const todoBtn = document.createElement('button');
+      todoBtn.type = 'button';
+      todoBtn.className = 'line-todo' + (line.todo ? (line.done ? ' is-done' : ' is-todo') : '');
+      todoBtn.innerHTML = line.todo ? (line.done ? '&#9745;' : '&#9744;') : '';
+      todoBtn.title = line.todo ? (line.done ? 'Erledigt (klick: zuruecksetzen)' : 'Offen (klick: abhaken)') : 'Klick: als ToDo markieren';
+
+      const prioBtn = document.createElement('button');
+      prioBtn.type = 'button';
+      const prioClass = line.priority ? ' prio-' + line.priority.toLowerCase() : ' prio-none';
+      prioBtn.className = 'line-prio' + (line.todo ? ' visible' : '') + prioClass;
+      prioBtn.textContent = line.priority || '\u2013';
+      prioBtn.title = line.todo ? 'Prioritaet: ' + (line.priority || 'keine') + ' (klick: aendern)' : '';
+
+      const dateIn = document.createElement('input');
+      dateIn.type = 'text';
+      dateIn.className = 'line-date';
+      dateIn.value = line.date;
+      dateIn.placeholder = '';
+      dateIn.maxLength = 6;
+
+      const tagBtn = document.createElement('button');
+      tagBtn.type = 'button';
+      tagBtn.className = 'line-tag-btn' + (line.tag ? ' has-tag' : '');
+      tagBtn.textContent = line.tag || '#';
+      if (line.tag) {
+        const tc = tagColor(line.tag);
+        tagBtn.style.background = tc.bg;
+        tagBtn.style.borderColor = tc.text;
+        tagBtn.style.color = tc.text;
+      }
+
+      const textIn = document.createElement('div');
+      textIn.contentEditable = 'true';
+      textIn.className = 'line-text' + (line.todo && line.done ? ' done' : '');
+      textIn.innerHTML = line.text;
+
+      todoBtn.addEventListener('click', () => {
+        const l = pg.lines[i];
+        if (!l.todo) { l.todo = true; l.done = false; }
+        else if (!l.done) { l.done = true; }
+        else { l.todo = false; l.done = false; l.priority = ''; }
+        todoBtn.className = 'line-todo' + (l.todo ? (l.done ? ' is-done' : ' is-todo') : '');
+        todoBtn.innerHTML = l.todo ? (l.done ? '&#9745;' : '&#9744;') : '';
+        textIn.classList.toggle('done', l.todo && l.done);
+        prioBtn.classList.toggle('visible', l.todo);
+        if (!l.todo) { prioBtn.className = 'line-prio'; prioBtn.textContent = '\u2013'; }
+        pg.updatedAt = Date.now();
+        save();
+        if (activeTab === 'todos') { renderTodoFilters(); renderTodoList(); }
+        renderPageList();
+      });
+
+      prioBtn.addEventListener('click', () => {
+        const l = pg.lines[i];
+        if (!l.todo) return;
+        const cycle = ['', 'A', 'B', 'C'];
+        const idx = cycle.indexOf(l.priority || '');
+        l.priority = cycle[(idx + 1) % cycle.length];
+        const pc = l.priority ? ' prio-' + l.priority.toLowerCase() : ' prio-none';
+        prioBtn.className = 'line-prio visible' + pc;
+        prioBtn.textContent = l.priority || '\u2013';
+        pg.updatedAt = Date.now();
+        save();
+        if (activeTab === 'todos') renderTodoList();
+      });
+
+      dateIn.addEventListener('input', () => {
+        pg.lines[i].date = dateIn.value;
+        pg.updatedAt = Date.now();
+        scheduleSave();
+      });
+
+      textIn.addEventListener('input', () => {
+        if (textIn.innerHTML === '<br>' || textIn.innerHTML === '<br/>') textIn.innerHTML = '';
+        pg.lines[i].text = textIn.innerHTML;
+        if (textIn.textContent.trim() && !pg.lines[i].date) {
+          pg.lines[i].date = todayStr();
+          dateIn.value = pg.lines[i].date;
+        }
+        pg.updatedAt = Date.now();
+        scheduleSave();
+        renderPageList();
+        if (activeTab === 'todos') renderTodoList();
+      });
+
+      textIn.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        document.execCommand('insertText', false, text);
+      });
+
+      textIn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          if (i < LINES_PER_PAGE - 1) {
+            focusLineIn(linesArea2, i + 1);
+          } else {
+            const nextIdx = rightIdx + 1;
+            if (nextIdx < pages.length) {
+              goTo(rightIdx, 'right');
+              setTimeout(() => focusLine(0), 250);
+            } else {
+              addPage();
+              setTimeout(() => focusLine(0), 250);
+            }
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (i > 0) focusLineIn(linesArea2, i - 1);
+          else focusLine(LINES_PER_PAGE - 1);
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (i < LINES_PER_PAGE - 1) focusLineIn(linesArea2, i + 1);
+        } else if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+          e.preventDefault();
+          document.execCommand('bold');
+        }
+      });
+
+      tagBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openTagDd(i, tagBtn, rightIdx);
+      });
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'line-del';
+      delBtn.innerHTML = '&#128465;';
+      delBtn.title = 'Zeile loeschen';
+
+      delBtn.addEventListener('click', () => {
+        const l = pg.lines[i];
+        if (!stripHtml(l.text).trim() && !l.date && !l.tag && !l.todo) return;
+        l.text = ''; l.date = ''; l.tag = ''; l.todo = false; l.done = false; l.priority = '';
+        pg.updatedAt = Date.now();
+        save();
+        renderPage2();
+        renderTags();
+        renderPageList();
+        if (activeTab === 'todos') { renderTodoFilters(); renderTodoList(); }
+      });
+
+      row.appendChild(todoBtn);
+      row.appendChild(prioBtn);
+      row.appendChild(dateIn);
+      row.appendChild(tagBtn);
+      row.appendChild(textIn);
+      row.appendChild(delBtn);
+      linesArea2.appendChild(row);
+    });
+  }
+
+  function focusLineIn(container, idx, pos) {
+    requestAnimationFrame(() => {
+      const rows = container.querySelectorAll('.line-row');
+      if (!rows[idx]) return;
+      const el = rows[idx].querySelector('.line-text');
+      el.focus();
+      if (pos === 'end' && el.childNodes.length > 0) {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    });
   }
 
   function focusLine(idx, pos) {
@@ -1931,8 +2182,9 @@
   }
 
   // --- Tag dropdown ---
-  function openTagDd(lineIdx, btn) {
+  function openTagDd(lineIdx, btn, pageIdx) {
     ddLineIdx = lineIdx;
+    ddPageIdx = pageIdx !== undefined ? pageIdx : curPage;
     ddHlIdx = -1;
     const r = btn.getBoundingClientRect();
     tagDd.style.top = (r.bottom + 4) + 'px';
@@ -1946,6 +2198,7 @@
   function closeTagDd() {
     tagDd.classList.remove('open');
     ddLineIdx = null;
+    ddPageIdx = null;
     ddHlIdx = -1;
   }
 
@@ -1964,7 +2217,8 @@
       h += `<div class="tag-dd-item" data-t="${esc(t)}"><span class="tag-dd-dot" style="background:${tc.text}"></span>${esc(t)}</div>`;
     });
 
-    const pg = pages[curPage];
+    const pgIdx = ddPageIdx !== null ? ddPageIdx : curPage;
+    const pg = pages[pgIdx];
     if (pg && pg.lines[ddLineIdx] && pg.lines[ddLineIdx].tag) {
       h += `<div class="tag-dd-item remove" data-t="">Tag entfernen</div>`;
     }
@@ -1979,7 +2233,8 @@
 
   function renderTagDdColors() {
     const tagDdColors = document.getElementById('tagDdColors');
-    const pg = pages[curPage];
+    const pgIdx = ddPageIdx !== null ? ddPageIdx : curPage;
+    const pg = pages[pgIdx];
     const currentTag = pg && ddLineIdx !== null && pg.lines[ddLineIdx] ? pg.lines[ddLineIdx].tag : '';
 
     if (!currentTag) {
@@ -2009,7 +2264,8 @@
   }
 
   function pickTag(tag) {
-    const pg = pages[curPage];
+    const pgIdx = ddPageIdx !== null ? ddPageIdx : curPage;
+    const pg = pages[pgIdx];
     if (!pg || ddLineIdx === null) return;
     pg.lines[ddLineIdx].tag = tag ? tag.trim().toLowerCase() : '';
     pg.updatedAt = Date.now();
@@ -2201,13 +2457,40 @@
   newPageBtn.addEventListener('click', () => { addPage(); closeSidebar(); });
   delPageBtn.addEventListener('click', deletePage);
   boldBtn.addEventListener('click', () => { document.execCommand('bold'); });
-  prevBtn.addEventListener('click', () => goTo(curPage - 1, 'left'));
+  boldBtn2.addEventListener('click', () => { document.execCommand('bold'); });
+  delPageBtn2.addEventListener('click', () => {
+    const rightIdx = curPage + 1;
+    if (rightIdx >= pages.length) return;
+    if (pages.length <= 1) return;
+    if (!confirm('Diese Seite wirklich entfernen?')) return;
+    pages.splice(rightIdx, 1);
+    save();
+    renderPage();
+    renderTags();
+    renderPageList();
+  });
+  prevBtn.addEventListener('click', () => {
+    const step = isDualPage() ? 2 : 1;
+    goTo(Math.max(0, curPage - step), 'left');
+  });
   nextBtn.addEventListener('click', () => {
-    if (curPage < pages.length - 1) goTo(curPage + 1, 'right');
+    const step = isDualPage() ? 2 : 1;
+    const next = curPage + step;
+    if (next < pages.length) goTo(next, 'right');
     else addPage();
   });
 
   searchInput.addEventListener('input', () => { searchQuery = searchInput.value; renderPageList(); });
+
+  // Re-render on resize (dual/single page switch)
+  let lastDual = isDualPage();
+  window.addEventListener('resize', () => {
+    const nowDual = isDualPage();
+    if (nowDual !== lastDual) {
+      lastDual = nowDual;
+      renderPage();
+    }
+  });
 
   // --- Page filter events ---
   pageFilterSearch.addEventListener('input', () => {
