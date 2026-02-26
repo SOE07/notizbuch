@@ -24,7 +24,14 @@
 
   body {
     font-family: Arial, sans-serif;
-    background: #000000;
+    background:
+      linear-gradient(45deg, #111 25%, transparent 25%),
+      linear-gradient(-45deg, #111 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #111 75%),
+      linear-gradient(-45deg, transparent 75%, #111 75%);
+    background-size: 40px 40px;
+    background-position: 0 0, 0 20px, 20px -20px, -20px 0;
+    background-color: #0a0a0a;
     color: var(--ink);
     height: 100vh;
     overflow: hidden;
