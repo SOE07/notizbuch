@@ -1151,7 +1151,15 @@
     .line-prio { width: 18px; height: 16px; font-size: 8px; }
   }
 
-  /* Scrollbar */
+  /* Scrollbar – in Notebook-Blättern ausblenden */
+  .paper ::-webkit-scrollbar { display: none; }
+  .paper { scrollbar-width: none; }
+  .lines-area { scrollbar-width: none; }
+  .page-filter-bar { scrollbar-width: none; }
+  .lines-area::-webkit-scrollbar { display: none; }
+  .page-filter-bar::-webkit-scrollbar { display: none; }
+
+  /* Scrollbar – Sidebar */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #c8c0b0; border-radius: 2px; }
