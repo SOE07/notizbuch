@@ -693,6 +693,39 @@
   .switch input:checked + .slider { background: var(--tag-active); }
   .switch input:checked + .slider::before { transform: translateX(16px); }
 
+  .settings-select {
+    padding: 3px 6px;
+    border: 1px solid #c8c0b0;
+    border-radius: 4px;
+    font-size: 11px;
+    background: white;
+    color: var(--ink);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .settings-select:focus { border-color: var(--tag-active); }
+
+  /* Force single page layout */
+  body.force-single .paper-right { display: none !important; }
+  body.force-single .paper-left {
+    width: 100%;
+    border-radius: 3px;
+    box-shadow:
+      2px 4px 16px rgba(0,0,0,0.18),
+      -1px 0 0 var(--paper-edge),
+      1px 0 0 var(--paper-edge);
+  }
+  body.force-single .book-spread { max-width: 560px; }
+
+  /* Force dual page layout (override mobile) */
+  body.force-dual .paper-right { display: block !important; }
+  body.force-dual .paper-left {
+    width: 50%;
+    border-radius: 3px 0 0 3px;
+  }
+  body.force-dual .book-spread { max-width: 1200px; }
+
   .settings-hint {
     font-size: 9px;
     color: var(--ink-light);
@@ -1167,6 +1200,14 @@
       </div>
       <div class="settings-body" id="settingsBody">
         <div class="settings-row">
+          <label for="layoutSelect">Seitenansicht</label>
+          <select id="layoutSelect" class="settings-select">
+            <option value="auto">Automatisch</option>
+            <option value="single">1 Seite</option>
+            <option value="dual">2 Seiten</option>
+          </select>
+        </div>
+        <div class="settings-row">
           <label for="reminderEnabled">Erinnerung</label>
           <label class="switch">
             <input type="checkbox" id="reminderEnabled">
@@ -1264,6 +1305,7 @@
   // Reminder state
   let reminderEnabled = false;
   let reminderTime = '08:00';
+  let layoutMode = 'auto'; // 'auto', 'single', 'dual'
   let reminderLastShown = '';
   let reminderInterval = null;
 
@@ -1962,7 +2004,9 @@
   }
 
   function isDualPage() {
-    return window.innerWidth > 768 && paper2 && getComputedStyle(paper2).display !== 'none';
+    if (layoutMode === 'single') return false;
+    if (layoutMode === 'dual') return true;
+    return window.innerWidth > 768;
   }
 
   function renderPage2() {
@@ -2628,6 +2672,21 @@
     localStorage.setItem('notizbuch_reminder_time', reminderTime);
   }
 
+  function loadLayoutSetting() {
+    layoutMode = localStorage.getItem('notizbuch_layout_mode') || 'auto';
+    applyLayoutMode();
+  }
+
+  function saveLayoutSetting() {
+    localStorage.setItem('notizbuch_layout_mode', layoutMode);
+  }
+
+  function applyLayoutMode() {
+    document.body.classList.remove('force-single', 'force-dual');
+    if (layoutMode === 'single') document.body.classList.add('force-single');
+    else if (layoutMode === 'dual') document.body.classList.add('force-dual');
+  }
+
   function checkReminder() {
     if (!reminderEnabled) return;
     const now = new Date();
@@ -2696,13 +2755,22 @@
     const arrow = document.getElementById('settingsArrow');
     const enabledCb = document.getElementById('reminderEnabled');
     const timeInput = document.getElementById('reminderTime');
+    const layoutSelect = document.getElementById('layoutSelect');
 
     enabledCb.checked = reminderEnabled;
     timeInput.value = reminderTime;
+    layoutSelect.value = layoutMode;
 
     toggle.addEventListener('click', () => {
       body.classList.toggle('open');
       arrow.innerHTML = body.classList.contains('open') ? '&#9662;' : '&#9656;';
+    });
+
+    layoutSelect.addEventListener('change', () => {
+      layoutMode = layoutSelect.value;
+      saveLayoutSetting();
+      applyLayoutMode();
+      renderPage();
     });
 
     enabledCb.addEventListener('change', () => {
@@ -2727,6 +2795,7 @@
   load();
   restoreFileHandle();
   loadReminderSettings();
+  loadLayoutSetting();
   initSettings();
   startReminderCheck();
   renderTags();
