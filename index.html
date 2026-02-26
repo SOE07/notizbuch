@@ -375,6 +375,7 @@
     flex: 1;
     padding: 0 12px 0 6px;
     position: relative;
+    overflow-x: hidden;
   }
 
   .line-row {
@@ -383,6 +384,7 @@
     min-height: var(--line-h);
     gap: 2px;
     border-bottom: 1px solid #000;
+    overflow: hidden;
   }
 
   /* ToDo toggle button (3 states: none → open → done → none) */
@@ -860,9 +862,9 @@
     padding: 4px 12px 4px 6px;
     border-bottom: 1px solid #e8e4dc;
     background: #faf8f4;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     min-height: 30px;
-    overflow-x: auto;
+    overflow: hidden;
   }
 
   .page-filter-search {
@@ -900,9 +902,9 @@
   .page-filter-tags {
     display: flex;
     gap: 3px;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
-    flex-shrink: 0;
+    min-width: 0;
   }
 
   .page-tag-chip {
@@ -916,7 +918,6 @@
     transition: all 0.12s;
     user-select: none;
     white-space: nowrap;
-    flex-shrink: 0;
   }
 
   .page-tag-chip:hover { background: #d0e0f0; }
@@ -1151,7 +1152,15 @@
     .line-prio { width: 18px; height: 16px; font-size: 8px; }
   }
 
-  /* Scrollbar */
+  /* Scrollbar – in Notebook-Blättern ausblenden */
+  .paper ::-webkit-scrollbar { display: none; }
+  .paper { scrollbar-width: none; }
+  .lines-area { scrollbar-width: none; }
+  .page-filter-bar { scrollbar-width: none; }
+  .lines-area::-webkit-scrollbar { display: none; }
+  .page-filter-bar::-webkit-scrollbar { display: none; }
+
+  /* Scrollbar – Sidebar */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #c8c0b0; border-radius: 2px; }
