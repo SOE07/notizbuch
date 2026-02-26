@@ -240,11 +240,11 @@
   .page-arrow-left { left: 8px; }
   .page-arrow-right { right: 8px; }
 
-  /* Book spread – two pages side by side */
+  /* Book spread – two pages side by side (DIN A5 proportions: 148×210mm, ratio ~1:1.414) */
   .book-spread {
     display: flex;
     width: 100%;
-    max-width: 1120px;
+    max-width: 920px;
     height: 100%;
   }
 
@@ -716,7 +716,7 @@
       -1px 0 0 var(--paper-edge),
       1px 0 0 var(--paper-edge);
   }
-  body.force-single .book-spread { max-width: 560px; }
+  body.force-single .book-spread { max-width: 460px; }
 
   /* Force dual page layout (override mobile) */
   body.force-dual .paper-right { display: block !important; }
@@ -724,7 +724,7 @@
     width: 50%;
     border-radius: 3px 0 0 3px;
   }
-  body.force-dual .book-spread { max-width: 1200px; }
+  body.force-dual .book-spread { max-width: 920px; }
 
   .settings-hint {
     font-size: 9px;
@@ -1084,7 +1084,7 @@
 
   .overlay.visible { display: block; }
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     :root { --line-h: 32px; }
 
     .sidebar {
@@ -1103,7 +1103,7 @@
 
     .notebook-area { padding: 8px 44px; }
 
-    /* Single page on mobile */
+    /* Single page on smaller screens */
     .paper-right { display: none; }
     .paper-left {
       width: 100%;
@@ -1113,7 +1113,7 @@
         -1px 0 0 var(--paper-edge),
         1px 0 0 var(--paper-edge);
     }
-    .book-spread { max-width: 560px; }
+    .book-spread { max-width: 460px; }
 
     .paper::before { left: 100px; }
     .paper-left .line-todo, .line-todo { width: 16px; height: 16px; font-size: 13px; }
@@ -2006,7 +2006,7 @@
   function isDualPage() {
     if (layoutMode === 'single') return false;
     if (layoutMode === 'dual') return true;
-    return window.innerWidth > 768;
+    return window.innerWidth > 1024;
   }
 
   function renderPage2() {
