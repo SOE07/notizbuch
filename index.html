@@ -274,11 +274,35 @@
     border-left: 1px solid var(--paper-edge);
   }
 
+  /* Compact styles for dual-page view */
+  .paper-right .line-date { width: 38px; font-size: 11px; }
+  .paper-right .line-tag-btn { width: 40px; font-size: 8px; }
+  .paper-right .line-text { font-size: 15px; }
+  .paper-right .line-todo { width: 16px; height: 16px; font-size: 13px; }
+  .paper-right .line-prio { width: 18px; height: 18px; font-size: 9px; }
+  .paper-right .line-del { width: 16px; height: 16px; font-size: 12px; }
+  .paper-right .paper-header { padding: 6px 10px 4px; min-height: 30px; }
+  .paper-right .lines-area { padding: 0 6px 0 4px; }
+  .paper-right::before { left: 90px; }
+
+  .paper-left .line-date { width: 38px; font-size: 11px; }
+  .paper-left .line-tag-btn { width: 40px; font-size: 8px; }
+  .paper-left .line-text { font-size: 15px; }
+  .paper-left .line-todo { width: 16px; height: 16px; font-size: 13px; }
+  .paper-left .line-prio { width: 18px; height: 18px; font-size: 9px; }
+  .paper-left .line-del { width: 16px; height: 16px; font-size: 12px; }
+  .paper-left .lines-area { padding: 0 6px 0 4px; }
+  .paper-left .page-filter-bar { padding: 3px 6px 3px 4px; gap: 4px; min-height: 26px; }
+  .paper-left .page-filter-search { width: 90px; font-size: 10px; padding: 2px 5px 2px 18px; }
+  .paper-left .page-filter-toggle { font-size: 8px; }
+  .paper-left .page-tag-chip { font-size: 8px; }
+  .paper-left .page-filter-clear { font-size: 8px; }
+
   /* Margin line */
   .paper::before {
     content: '';
     position: absolute;
-    left: 120px;
+    left: 90px;
     top: 0;
     bottom: 0;
     width: 2px;
@@ -1059,12 +1083,14 @@
     .book-spread { max-width: 560px; }
 
     .paper::before { left: 100px; }
-    .line-todo { width: 16px; height: 16px; font-size: 13px; }
-    .line-prio { width: 20px; height: 18px; font-size: 9px; }
-    .line-date { width: 38px; font-size: 11px; }
-    .line-tag-btn { width: 40px; font-size: 8px; }
-    .line-text { font-size: 16px; }
-    .page-filter-search { width: 90px; font-size: 10px; }
+    .paper-left .line-todo, .line-todo { width: 16px; height: 16px; font-size: 13px; }
+    .paper-left .line-prio, .line-prio { width: 20px; height: 18px; font-size: 9px; }
+    .paper-left .line-date, .line-date { width: 38px; font-size: 11px; }
+    .paper-left .line-tag-btn, .line-tag-btn { width: 40px; font-size: 8px; }
+    .paper-left .line-text, .line-text { font-size: 16px; }
+    .paper-left .lines-area { padding: 0 12px 0 6px; }
+    .paper-left .page-filter-bar { padding: 4px 12px 4px 6px; gap: 6px; min-height: 30px; }
+    .paper-left .page-filter-search { width: 90px; font-size: 10px; }
     .page-filter-toggle { font-size: 8px; }
     .page-tag-chip { font-size: 8px; }
 
