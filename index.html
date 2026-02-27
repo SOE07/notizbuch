@@ -854,6 +854,39 @@
 
   .bold-btn:hover { opacity: 1; color: var(--ink); }
 
+  /* Microphone / Voice input button */
+  .mic-btn {
+    font-size: 15px;
+    color: var(--ink-light);
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: all 0.2s;
+    margin-right: 6px;
+    position: relative;
+  }
+
+  .mic-btn:hover { opacity: 1; color: var(--ink); }
+
+  .mic-btn.recording {
+    opacity: 1;
+    color: #e74c3c;
+    border-color: #e74c3c;
+    animation: mic-pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(231, 76, 60, 0); }
+  }
+
+  .mic-btn.unsupported {
+    display: none;
+  }
+
   /* --- Page filter bar --- */
   .page-filter-bar {
     display: flex;
@@ -1253,6 +1286,7 @@
       <div class="paper-header">
         <span class="paper-page-info" id="pageInfo">Seite 1</span>
         <div>
+          <button class="mic-btn" id="micBtn" title="Spracheingabe (Mikrofon)">&#127908;</button>
           <button class="bold-btn" id="boldBtn" title="Fett (Strg+B)"><b>B</b></button>
           <button class="paper-del-btn" id="delPageBtn">Seite entfernen</button>
         </div>
@@ -1276,6 +1310,7 @@
       <div class="paper-header">
         <span class="paper-page-info" id="pageInfo2">Seite 2</span>
         <div>
+          <button class="mic-btn" id="micBtn2" title="Spracheingabe (Mikrofon)">&#127908;</button>
           <button class="bold-btn" id="boldBtn2" title="Fett (Strg+B)"><b>B</b></button>
           <button class="paper-del-btn" id="delPageBtn2">Seite entfernen</button>
         </div>
@@ -1362,6 +1397,9 @@
   const pageFilterClear = document.getElementById('pageFilterClear');
   const hideDoneCheck = document.getElementById('hideDoneCheck');
   const pageFilterHideDone = document.getElementById('pageFilterHideDone');
+
+  const micBtn = document.getElementById('micBtn');
+  const micBtn2 = document.getElementById('micBtn2');
 
   // Second page (right side)
   const paper2 = document.getElementById('paper2');
@@ -2807,6 +2845,150 @@
 
     updateReminderHint();
   }
+
+  // --- Spracheingabe (Web Speech API) ---
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  let micActive = false;
+  let micTargetPage = null; // 'left' or 'right'
+
+  function initSpeechRecognition() {
+    if (!SpeechRecognition) {
+      micBtn.classList.add('unsupported');
+      micBtn2.classList.add('unsupported');
+      return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = 'de-DE';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+      // Collect all final results since last insertion
+      let finalText = '';
+      let interimText = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalText += transcript;
+        } else {
+          interimText += transcript;
+        }
+      }
+
+      if (finalText) {
+        insertVoiceText(finalText.trim());
+      }
+    };
+
+    recognition.onerror = (event) => {
+      if (event.error !== 'no-speech' && event.error !== 'aborted') {
+        console.warn('Speech error:', event.error);
+      }
+      stopMic();
+    };
+
+    recognition.onend = () => {
+      // Restart if still active (continuous mode can stop unexpectedly)
+      if (micActive) {
+        try { recognition.start(); } catch(e) { stopMic(); }
+      }
+    };
+  }
+
+  function findFirstEmptyLine(pageIdx) {
+    const pg = pages[pageIdx];
+    if (!pg) return -1;
+    for (let i = 0; i < pg.lines.length; i++) {
+      if (!stripHtml(pg.lines[i].text).trim()) return i;
+    }
+    return -1;
+  }
+
+  function insertVoiceText(text) {
+    // Determine target: focused line or first empty line on target page
+    const pageIdx = micTargetPage === 'right' ? curPage + 1 : curPage;
+    const pg = pages[pageIdx];
+    if (!pg) return;
+
+    const container = micTargetPage === 'right' ? linesArea2 : linesArea;
+
+    // Check if a line-text element is currently focused in the target container
+    const focused = container.querySelector('.line-text:focus');
+    let targetLineIdx = -1;
+
+    if (focused) {
+      const rows = container.querySelectorAll('.line-row');
+      for (let i = 0; i < rows.length; i++) {
+        if (rows[i].contains(focused)) { targetLineIdx = i; break; }
+      }
+    }
+
+    // If no focused line, find first empty line
+    if (targetLineIdx === -1) {
+      targetLineIdx = findFirstEmptyLine(pageIdx);
+    }
+
+    // If no empty line, use last line
+    if (targetLineIdx === -1) {
+      targetLineIdx = pg.lines.length - 1;
+    }
+
+    const line = pg.lines[targetLineIdx];
+    const existing = stripHtml(line.text).trim();
+    line.text = existing ? existing + ' ' + text : text;
+
+    if (!line.date) {
+      line.date = todayStr();
+    }
+
+    pg.updatedAt = Date.now();
+    save();
+    renderPage();
+    renderPageList();
+
+    // Focus the line that received text
+    requestAnimationFrame(() => {
+      if (micTargetPage === 'right') {
+        focusLineIn(linesArea2, targetLineIdx, 'end');
+      } else {
+        focusLine(targetLineIdx, 'end');
+      }
+    });
+  }
+
+  function startMic(target) {
+    if (!recognition) return;
+    micTargetPage = target;
+    micActive = true;
+    micBtn.classList.toggle('recording', target === 'left');
+    micBtn2.classList.toggle('recording', target === 'right');
+    try { recognition.start(); } catch(e) { /* already running */ }
+  }
+
+  function stopMic() {
+    micActive = false;
+    micBtn.classList.remove('recording');
+    micBtn2.classList.remove('recording');
+    if (recognition) {
+      try { recognition.stop(); } catch(e) {}
+    }
+  }
+
+  function toggleMic(target) {
+    if (micActive && micTargetPage === target) {
+      stopMic();
+    } else {
+      if (micActive) stopMic();
+      setTimeout(() => startMic(target), 100);
+    }
+  }
+
+  initSpeechRecognition();
+
+  micBtn.addEventListener('click', () => toggleMic('left'));
+  micBtn2.addEventListener('click', () => toggleMic('right'));
 
   // --- Init ---
   document.getElementById('versionInfo').textContent = APP_VERSION + ' | Build: ' + BUILD_DATE;
